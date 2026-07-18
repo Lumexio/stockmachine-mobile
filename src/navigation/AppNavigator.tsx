@@ -8,7 +8,7 @@ import { useThemeStore } from '@store/theme-store';
 import { Colors } from '@constants/theme';
 
 // ── Feature screens & navigators ─────────────────────────────────────────────
-import { LoginScreen, RegisterScreen } from '@features/auth';
+import { LoginScreen, RegisterScreen, WelcomeScreen } from '@features/auth';
 import { DashboardScreen } from '@features/dashboard';
 import { ProductsNavigator } from '@features/products';
 import { CategoriesNavigator } from '@features/categories';
@@ -16,17 +16,24 @@ import { ShelvesNavigator } from '@features/shelves';
 import { RacksNavigator } from '@features/racks';
 import { HistoryScreen } from '@features/history';
 import { SettingsScreen } from '@features/settings';
+import { useAuthStore } from '@store/auth-store';
 
 // ── Auth navigator ────────────────────────────────────────────────────────────
 export type AuthStackParamList = {
+  [NAV_KEYS.WELCOME]: undefined;
   [NAV_KEYS.LOGIN]: undefined;
   [NAV_KEYS.REGISTER]: undefined;
 };
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
 function AuthNavigator() {
+  const hasSeenWelcome = useAuthStore((s) => s.hasSeenWelcome);
   return (
-    <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+    <AuthStack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName={hasSeenWelcome ? NAV_KEYS.LOGIN : NAV_KEYS.WELCOME}
+    >
+      <AuthStack.Screen name={NAV_KEYS.WELCOME} component={WelcomeScreen} />
       <AuthStack.Screen name={NAV_KEYS.LOGIN} component={LoginScreen} />
       <AuthStack.Screen name={NAV_KEYS.REGISTER} component={RegisterScreen} />
     </AuthStack.Navigator>
@@ -61,22 +68,22 @@ function MainNavigator() {
       <MainTabs.Screen name={NAV_KEYS.DASHBOARD} component={DashboardScreen} />
       <MainTabs.Screen
         name={NAV_KEYS.PRODUCTS_STACK}
-        component={ProductListScreen}
+        component={ProductsNavigator}
         options={{ title: 'Products' }}
       />
       <MainTabs.Screen
         name={NAV_KEYS.CATEGORIES_STACK}
-        component={CategoryListScreen}
+        component={CategoriesNavigator}
         options={{ title: 'Categories' }}
       />
       <MainTabs.Screen
         name={NAV_KEYS.SHELVES_STACK}
-        component={ShelfListScreen}
+        component={ShelvesNavigator}
         options={{ title: 'Shelves' }}
       />
       <MainTabs.Screen
         name={NAV_KEYS.RACKS_STACK}
-        component={RackListScreen}
+        component={RacksNavigator}
         options={{ title: 'Racks' }}
       />
       <MainTabs.Screen name={NAV_KEYS.HISTORY} component={HistoryScreen} />
@@ -92,12 +99,12 @@ export type RootStackParamList = {
 };
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
-/** Replace `isAuthenticated` with your auth store selector once auth is implemented */
 interface AppNavigatorProps {
   isAuthenticated: boolean;
+  isOffline: boolean;
 }
 
-export function AppNavigator({ isAuthenticated }: AppNavigatorProps) {
+export function AppNavigator({ isAuthenticated, isOffline }: AppNavigatorProps) {
   const colors = useThemeStore((s) => s.colors);
 
   return (
@@ -121,7 +128,7 @@ export function AppNavigator({ isAuthenticated }: AppNavigatorProps) {
       }}
     >
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
+        {isAuthenticated || isOffline ? (
           <RootStack.Screen
             name={NAV_KEYS.MAIN_TABS}
             component={MainNavigator}

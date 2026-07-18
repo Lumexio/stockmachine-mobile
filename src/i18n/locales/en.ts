@@ -168,7 +168,18 @@ const en = {
     connection: 'Connection',
     account: 'Account',
   },
+  welcome: {
+    title: 'Welcome to STOCKMACHINE',
+    subtitle: 'Connect your account to sync inventory across devices, or continue working offline.',
+    loginBtn: 'Log In',
+    registerBtn: 'Register Online',
+    offlineBtn: 'Continue Offline'
+  },
 } as const;
 
+type DeepStringify<T> = {
+  [K in keyof T]: T[K] extends object ? DeepStringify<T[K]> : string;
+};
+
+export type Translations = DeepStringify<typeof en>;
 export default en;
-export type Translations = typeof en;

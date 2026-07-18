@@ -1,9 +1,13 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { create } from 'zustand';
 import { ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY } from '@api/axios-client';
 
 const BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
+
+const HAS_SEEN_WELCOME_KEY = 'sm_has_seen_welcome';
+const IS_OFFLINE_KEY = 'sm_is_offline';
 
 export interface AuthUser {
   id: number;
@@ -16,6 +20,8 @@ export interface AuthUser {
 interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
+  hasSeenWelcome: boolean;
+  isOffline: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (dto: {
     name: string;
@@ -24,6 +30,8 @@ interface AuthState {
     org_name?: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
+  setOffline: (offline: boolean) => void;
+  setHasSeenWelcome: () => void;
   loadFromStorage: () => Promise<void>;
 }
 
@@ -40,6 +48,8 @@ const clearTokens = async () => {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
+  hasSeenWelcome: false,
+  isOffline: false,
 
   login: async (email, password) => {
     const res = await fetch(`${BASE_URL}/auth/login`, {
@@ -55,7 +65,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
     const { data } = await res.json();
     await storeTokens(data.access_token, data.refresh_token);
-    set({ user: data.user, isAuthenticated: true });
+    await AsyncStorage.setItem(IS_OFFLINE_KEY, 'false');
+    set({ user: data.user, isAuthenticated: true, isOffline: false });
   },
 
   register: async (dto) => {
@@ -72,7 +83,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
     const { data } = await res.json();
     await storeTokens(data.access_token, data.refresh_token);
-    set({ user: data.user, isAuthenticated: true });
+    await AsyncStorage.setItem(IS_OFFLINE_KEY, 'false');
+    set({ user: data.user, isAuthenticated: true, isOffline: false });
   },
 
   logout: async () => {
@@ -88,12 +100,36 @@ export const useAuthStore = create<AuthState>((set) => ({
       // Best-effort server logout; always clear local tokens
     } finally {
       await clearTokens();
-      set({ user: null, isAuthenticated: false });
+      await AsyncStorage.setItem(IS_OFFLINE_KEY, 'false');
+      set({ user: null, isAuthenticated: false, isOffline: false });
     }
+  },
+
+  setOffline: (offline) => {
+    AsyncStorage.setItem(IS_OFFLINE_KEY, offline ? 'true' : 'false').catch(() => null);
+    set({ isOffline: offline });
+  },
+
+  setHasSeenWelcome: () => {
+    AsyncStorage.setItem(HAS_SEEN_WELCOME_KEY, 'true').catch(() => null);
+    set({ hasSeenWelcome: true });
   },
 
   /** Restore session from SecureStore on app start. */
   loadFromStorage: async () => {
+    try {
+      // Load onboarding / offline preferences
+      const seen = await AsyncStorage.getItem(HAS_SEEN_WELCOME_KEY);
+      const offline = await AsyncStorage.getItem(IS_OFFLINE_KEY);
+      
+      set({
+        hasSeenWelcome: seen === 'true',
+        isOffline: offline === 'true',
+      });
+    } catch {
+      // ignore preferences load failures
+    }
+
     const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
     if (!token) return;
     try {
@@ -102,7 +138,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
       if (res.ok) {
         const { data } = await res.json();
-        set({ user: data, isAuthenticated: true });
+        set({ user: data, isAuthenticated: true, isOffline: false });
       } else {
         await clearTokens();
       }

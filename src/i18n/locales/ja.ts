@@ -170,6 +170,13 @@ const ja: Translations = {
     connection: '接続設定',
     account: 'アカウント',
   },
+  welcome: {
+    title: 'STOCKMACHINEへようこそ',
+    subtitle: 'アカウントを接続してデバイス間で在庫を同期するか、オフラインで作業を続けてください。',
+    loginBtn: 'ログイン',
+    registerBtn: 'オンラインで登録',
+    offlineBtn: 'オフラインで続行'
+  },
 };
 
 export default ja;

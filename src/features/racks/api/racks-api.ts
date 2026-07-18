@@ -9,6 +9,7 @@ export interface Rack {
   location_id: number;
   created_at: string;
   updated_at: string;
+  _unsynced?: boolean;
 }
 
 export interface RackDto {

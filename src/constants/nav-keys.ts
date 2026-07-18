@@ -1,6 +1,7 @@
 export const NAV_KEYS = {
   // Auth stack
   AUTH_STACK: 'AuthStack',
+  WELCOME: 'Welcome',
   LOGIN: 'Login',
   REGISTER: 'Register',
 

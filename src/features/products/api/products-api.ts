@@ -8,11 +8,16 @@ export interface Product {
   shelve_id: number | null;
   rack_id: number | null;
   status_id: number | null;
+  supplier_id: number | null;
+  cost_price: number;
+  selling_price: number;
+  min_stock: number;
   foto_product: string | null;
   org_id: number;
   location_id: number;
   created_at: string;
   updated_at: string;
+  _unsynced?: boolean;
 }
 
 export interface CreateProductDto {
@@ -22,6 +27,10 @@ export interface CreateProductDto {
   shelve_id?: number;
   rack_id?: number;
   status_id?: number;
+  supplier_id?: number;
+  cost_price?: number;
+  selling_price?: number;
+  min_stock?: number;
 }
 
 export interface StockActionDto {

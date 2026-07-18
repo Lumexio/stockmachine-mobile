@@ -170,6 +170,13 @@ const ru: Translations = {
     connection: 'Подключение',
     account: 'Аккаунт',
   },
+  welcome: {
+    title: 'Добро пожаловать в STOCKMACHINE',
+    subtitle: 'Подключите аккаунт для синхронизации инвентаря между устройствами или продолжите работу оффлайн.',
+    loginBtn: 'Войти',
+    registerBtn: 'Зарегистрироваться онлайн',
+    offlineBtn: 'Продолжить оффлайн'
+  },
 };
 
 export default ru;

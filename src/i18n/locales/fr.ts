@@ -170,6 +170,13 @@ const fr: Translations = {
     connection: 'Connexion',
     account: 'Compte',
   },
+  welcome: {
+    title: 'Bienvenue dans STOCKMACHINE',
+    subtitle: 'Connectez votre compte pour synchroniser votre inventaire, ou continuez à travailler hors ligne.',
+    loginBtn: 'Se connecter',
+    registerBtn: "S'inscrire en ligne",
+    offlineBtn: 'Continuer hors ligne'
+  },
 };
 
 export default fr;
