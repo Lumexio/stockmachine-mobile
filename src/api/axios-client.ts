@@ -5,7 +5,7 @@ export const ACCESS_TOKEN_KEY = 'sm_access_token';
 export const REFRESH_TOKEN_KEY = 'sm_refresh_token';
 
 const BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api/v1';
+  process.env.EXPO_PUBLIC_API_URL ?? 'https://api.stockmachine.online/api/v1';
 
 export const apiClient = axios.create({
   baseURL: BASE_URL,
