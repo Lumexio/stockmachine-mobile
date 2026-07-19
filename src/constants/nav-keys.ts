@@ -14,6 +14,7 @@ export const NAV_KEYS = {
   RACKS_STACK: 'RacksStack',
   HISTORY: 'History',
   SETTINGS: 'Settings',
+  PROFILE: 'Profile',
 
   // Products screens
   PRODUCT_LIST: 'ProductList',

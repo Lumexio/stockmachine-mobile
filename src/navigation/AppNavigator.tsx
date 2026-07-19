@@ -1,8 +1,9 @@
 import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useTranslation } from 'react-i18next';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NAV_KEYS } from '@constants/nav-keys';
 import { useThemeStore } from '@store/theme-store';
 import { Colors } from '@constants/theme';
@@ -15,7 +16,7 @@ import { CategoriesNavigator } from '@features/categories';
 import { ShelvesNavigator } from '@features/shelves';
 import { RacksNavigator } from '@features/racks';
 import { HistoryScreen } from '@features/history';
-import { SettingsScreen } from '@features/settings';
+import { SettingsScreen, ProfileScreen } from '@features/settings/screens';
 import { useAuthStore } from '@store/auth-store';
 
 // ── Auth navigator ────────────────────────────────────────────────────────────
@@ -48,22 +49,38 @@ export type MainTabsParamList = {
   [NAV_KEYS.SHELVES_STACK]: undefined;
   [NAV_KEYS.RACKS_STACK]: undefined;
   [NAV_KEYS.HISTORY]: undefined;
+  [NAV_KEYS.PROFILE]: undefined;
   [NAV_KEYS.SETTINGS]: undefined;
 };
 const MainTabs = createBottomTabNavigator<MainTabsParamList>();
 
 function MainNavigator() {
   const colors = useThemeStore((s) => s.colors);
+  const user = useAuthStore((s) => s.user);
 
   return (
     <MainTabs.Navigator
-      screenOptions={{
+      screenOptions={({ navigation }) => ({
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: { backgroundColor: colors.card },
         headerStyle: { backgroundColor: colors.card },
         headerTintColor: colors.text,
-      }}
+        headerRight: () => (
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12, gap: 12 }}>
+            <TouchableOpacity onPress={() => navigation.navigate(NAV_KEYS.PROFILE)}>
+              <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 12 }}>
+                  {user?.name ? user.name.slice(0, 2).toUpperCase() : 'US'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate(NAV_KEYS.SETTINGS)}>
+              <MaterialCommunityIcons name="cog" size={22} color={colors.icon} />
+            </TouchableOpacity>
+          </View>
+        ),
+      })}
     >
       <MainTabs.Screen name={NAV_KEYS.DASHBOARD} component={DashboardScreen} />
       <MainTabs.Screen
@@ -87,7 +104,26 @@ function MainNavigator() {
         options={{ title: 'Racks' }}
       />
       <MainTabs.Screen name={NAV_KEYS.HISTORY} component={HistoryScreen} />
-      <MainTabs.Screen name={NAV_KEYS.SETTINGS} component={SettingsScreen} />
+      <MainTabs.Screen
+        name={NAV_KEYS.PROFILE}
+        component={ProfileScreen}
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="account" size={size} color={color} />
+          ),
+        }}
+      />
+      <MainTabs.Screen
+        name={NAV_KEYS.SETTINGS}
+        component={SettingsScreen}
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="cog" size={size} color={color} />
+          ),
+        }}
+      />
     </MainTabs.Navigator>
   );
 }
@@ -110,7 +146,7 @@ export function AppNavigator({ isAuthenticated, isOffline }: AppNavigatorProps) 
   return (
     <NavigationContainer
       theme={{
-        dark: useThemeStore.getState().scheme === 'dark',
+        dark: useThemeStore.getState().isDarkActive,
         colors: {
           primary: Colors.primary,
           background: colors.background,
