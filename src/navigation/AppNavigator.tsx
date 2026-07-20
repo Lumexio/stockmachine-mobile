@@ -19,6 +19,8 @@ import { HistoryScreen } from '@features/history';
 import { SettingsScreen, ProfileScreen } from '@features/settings/screens';
 import { useAuthStore } from '@store/auth-store';
 
+import { HeaderRight } from '../components/HeaderRight';
+
 // ── Auth navigator ────────────────────────────────────────────────────────────
 export type AuthStackParamList = {
   [NAV_KEYS.WELCOME]: undefined;
@@ -56,54 +58,68 @@ const MainTabs = createBottomTabNavigator<MainTabsParamList>();
 
 function MainNavigator() {
   const colors = useThemeStore((s) => s.colors);
-  const user = useAuthStore((s) => s.user);
 
   return (
     <MainTabs.Navigator
-      screenOptions={({ navigation }) => ({
+      screenOptions={{
         tabBarActiveTintColor: Colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: { backgroundColor: colors.card },
         headerStyle: { backgroundColor: colors.card },
         headerTintColor: colors.text,
-        headerRight: () => (
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12, gap: 12 }}>
-            <TouchableOpacity onPress={() => navigation.navigate(NAV_KEYS.PROFILE)}>
-              <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 12 }}>
-                  {user?.name ? user.name.slice(0, 2).toUpperCase() : 'US'}
-                </Text>
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate(NAV_KEYS.SETTINGS)}>
-              <MaterialCommunityIcons name="cog" size={22} color={colors.icon} />
-            </TouchableOpacity>
-          </View>
-        ),
-      })}
+        headerRight: () => <HeaderRight />,
+      }}
     >
-      <MainTabs.Screen name={NAV_KEYS.DASHBOARD} component={DashboardScreen} />
+      <MainTabs.Screen
+        name={NAV_KEYS.DASHBOARD}
+        component={DashboardScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="view-dashboard" size={size} color={color} />,
+        }}
+      />
       <MainTabs.Screen
         name={NAV_KEYS.PRODUCTS_STACK}
         component={ProductsNavigator}
-        options={{ title: 'Products' }}
+        options={{
+          title: 'Products',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="package-variant" size={size} color={color} />,
+        }}
       />
       <MainTabs.Screen
         name={NAV_KEYS.CATEGORIES_STACK}
         component={CategoriesNavigator}
-        options={{ title: 'Categories' }}
+        options={{
+          title: 'Categories',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="shape" size={size} color={color} />,
+        }}
       />
       <MainTabs.Screen
         name={NAV_KEYS.SHELVES_STACK}
         component={ShelvesNavigator}
-        options={{ title: 'Shelves' }}
+        options={{
+          title: 'Shelves',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="bookshelf" size={size} color={color} />,
+        }}
       />
       <MainTabs.Screen
         name={NAV_KEYS.RACKS_STACK}
         component={RacksNavigator}
-        options={{ title: 'Racks' }}
+        options={{
+          title: 'Racks',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="server" size={size} color={color} />,
+        }}
       />
-      <MainTabs.Screen name={NAV_KEYS.HISTORY} component={HistoryScreen} />
+      <MainTabs.Screen
+        name={NAV_KEYS.HISTORY}
+        component={HistoryScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="history" size={size} color={color} />,
+        }}
+      />
       <MainTabs.Screen
         name={NAV_KEYS.PROFILE}
         component={ProfileScreen}

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { NAV_KEYS } from '@constants/nav-keys';
 import { RackListScreen } from './screens/RackListScreen';
 import { RackFormScreen } from './screens/RackFormScreen';
+import { HeaderRight } from '../../components/HeaderRight';
 import type { RacksStackParamList } from './types';
 
 export type { RacksStackParamList } from './types';
@@ -13,7 +14,7 @@ const Stack = createNativeStackNavigator<RacksStackParamList>();
 export function RacksNavigator() {
   const { t } = useTranslation();
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerRight: () => <HeaderRight /> }}>
       <Stack.Screen
         name={NAV_KEYS.RACK_LIST}
         component={RackListScreen}

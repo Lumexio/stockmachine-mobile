@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { NAV_KEYS } from '@constants/nav-keys';
 import { CategoryListScreen } from './screens/CategoryListScreen';
 import { CategoryFormScreen } from './screens/CategoryFormScreen';
+import { HeaderRight } from '../../components/HeaderRight';
 import type { CategoriesStackParamList } from './types';
 
 export type { CategoriesStackParamList } from './types';
@@ -13,7 +14,7 @@ const Stack = createNativeStackNavigator<CategoriesStackParamList>();
 export function CategoriesNavigator() {
   const { t } = useTranslation();
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerRight: () => <HeaderRight /> }}>
       <Stack.Screen
         name={NAV_KEYS.CATEGORY_LIST}
         component={CategoryListScreen}

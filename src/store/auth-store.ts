@@ -15,6 +15,11 @@ export interface AuthUser {
   email: string;
   role: string;
   org_id: number | null;
+  photo_url?: string | null;
+  account_type?: 'individual' | 'team';
+  organization?: {
+    plan_id: string;
+  } | null;
 }
 
 interface AuthState {
@@ -33,6 +38,7 @@ interface AuthState {
   setOffline: (offline: boolean) => void;
   setHasSeenWelcome: () => void;
   loadFromStorage: () => Promise<void>;
+  updateUser: (updates: Partial<AuthUser>) => void;
 }
 
 const storeTokens = async (accessToken: string, refreshToken: string) => {
@@ -146,4 +152,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       // Network unavailable — remain unauthenticated until next online check
     }
   },
+
+  updateUser: (updates) => set((state) => ({ user: state.user ? { ...state.user, ...updates } : null })),
 }));

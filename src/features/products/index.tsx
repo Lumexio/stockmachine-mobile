@@ -5,6 +5,7 @@ import { NAV_KEYS } from '@constants/nav-keys';
 import { ProductListScreen } from './screens/ProductListScreen';
 import { ProductDetailScreen } from './screens/ProductDetailScreen';
 import { ProductFormScreen } from './screens/ProductFormScreen';
+import { HeaderRight } from '../../components/HeaderRight';
 import type { ProductsStackParamList } from './types';
 
 export type { ProductsStackParamList } from './types';
@@ -14,7 +15,7 @@ const Stack = createNativeStackNavigator<ProductsStackParamList>();
 export function ProductsNavigator() {
   const { t } = useTranslation();
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerRight: () => <HeaderRight /> }}>
       <Stack.Screen
         name={NAV_KEYS.PRODUCT_LIST}
         component={ProductListScreen}

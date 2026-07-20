@@ -10,7 +10,7 @@ import { loadSavedLanguage } from './src/i18n';
 
 export default function App() {
   const [ready, setReady] = useState(false);
-  const { loadSaved, scheme } = useThemeStore();
+  const { loadSaved, isDarkActive } = useThemeStore();
   const { isAuthenticated, isOffline, loadFromStorage } = useAuthStore();
 
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function App() {
 
   return (
     <>
-      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <StatusBar style={isDarkActive ? 'light' : 'dark'} />
       <AppNavigator isAuthenticated={isAuthenticated} isOffline={isOffline} />
     </>
   );

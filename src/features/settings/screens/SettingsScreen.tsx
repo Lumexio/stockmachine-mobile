@@ -81,7 +81,7 @@ export function SettingsScreen() {
             </Text>
           </View>
           <View className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
-            <!-- Dark Mode Switch -->
+            {/* Dark Mode Switch */}
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-sm font-semibold" style={{ color: colors.text }}>
                 Dark Theme Mode

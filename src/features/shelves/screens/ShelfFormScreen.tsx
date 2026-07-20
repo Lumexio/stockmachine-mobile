@@ -53,8 +53,9 @@ export function ShelfFormScreen({ route, navigation }: Props) {
         await create({ name: name.trim() });
       }
       navigation.goBack();
-    } catch {
-      Alert.alert('', t('messages.error.create'));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || t('messages.error.create');
+      Alert.alert('', msg);
     } finally {
       setSaving(false);
     }
