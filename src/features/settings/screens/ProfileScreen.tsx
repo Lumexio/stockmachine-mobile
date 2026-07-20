@@ -101,12 +101,12 @@ export function ProfileScreen() {
     }
   };
 
-  const handleUpgrade = async (targetPlan: 'pro' | 'max') => {
+  const handleUpgrade = async (targetPlan: 'pro' | 'max', targetAccountType: 'individual' | 'team') => {
     setIsInitializingCheckout(true);
     try {
       const res = await apiClient.post('/billing/checkout-session', {
         target_plan: targetPlan,
-        target_account_type: userAccountType,
+        target_account_type: targetAccountType,
         client_type: 'mobile',
       });
 
@@ -293,27 +293,49 @@ export function ProfileScreen() {
           
           <View className="mt-6" style={{ gap: 10 }}>
             {currentPlan === 'free' && (
-              <TouchableOpacity
-                onPress={() => handleUpgrade('pro')}
-                disabled={isInitializingCheckout}
-                className="rounded-lg p-4 items-center flex-row justify-center"
-                style={{ backgroundColor: '#2563EB', opacity: isInitializingCheckout ? 0.7 : 1 }}
-              >
-                <Text className="text-white font-bold mr-2 text-base">Upgrade to Pro</Text>
-                <Text className="text-white/80">(${userAccountType === 'individual' ? '4' : '7'}/mo)</Text>
-              </TouchableOpacity>
+              <View style={{ gap: 10 }}>
+                <TouchableOpacity
+                  onPress={() => handleUpgrade('pro', 'individual')}
+                  disabled={isInitializingCheckout}
+                  className="rounded-lg p-4 items-center flex-row justify-center"
+                  style={{ backgroundColor: '#2563EB', opacity: isInitializingCheckout ? 0.7 : 1 }}
+                >
+                  <Text className="text-white font-bold mr-2 text-base">Upgrade to Pro Solo</Text>
+                  <Text className="text-white/80">($4/mo)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleUpgrade('pro', 'team')}
+                  disabled={isInitializingCheckout}
+                  className="rounded-lg p-4 items-center flex-row justify-center"
+                  style={{ backgroundColor: '#2563EB', opacity: isInitializingCheckout ? 0.7 : 1 }}
+                >
+                  <Text className="text-white font-bold mr-2 text-base">Upgrade to Pro Team</Text>
+                  <Text className="text-white/80">($7/mo)</Text>
+                </TouchableOpacity>
+              </View>
             )}
 
             {currentPlan !== 'max' && (
-              <TouchableOpacity
-                onPress={() => handleUpgrade('max')}
-                disabled={isInitializingCheckout}
-                className="rounded-lg p-4 items-center flex-row justify-center"
-                style={{ backgroundColor: '#10B981', opacity: isInitializingCheckout ? 0.7 : 1 }}
-              >
-                <Text className="text-white font-bold mr-2 text-base">Upgrade to Max</Text>
-                <Text className="text-white/80">(${userAccountType === 'individual' ? '11.99' : '19.99'}/mo)</Text>
-              </TouchableOpacity>
+              <View style={{ gap: 10 }}>
+                <TouchableOpacity
+                  onPress={() => handleUpgrade('max', 'individual')}
+                  disabled={isInitializingCheckout}
+                  className="rounded-lg p-4 items-center flex-row justify-center"
+                  style={{ backgroundColor: '#10B981', opacity: isInitializingCheckout ? 0.7 : 1 }}
+                >
+                  <Text className="text-white font-bold mr-2 text-base">Upgrade to Max Solo</Text>
+                  <Text className="text-white/80">($11.99/mo)</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleUpgrade('max', 'team')}
+                  disabled={isInitializingCheckout}
+                  className="rounded-lg p-4 items-center flex-row justify-center"
+                  style={{ backgroundColor: '#10B981', opacity: isInitializingCheckout ? 0.7 : 1 }}
+                >
+                  <Text className="text-white font-bold mr-2 text-base">Upgrade to Max Team</Text>
+                  <Text className="text-white/80">($19.99/mo)</Text>
+                </TouchableOpacity>
+              </View>
             )}
 
             {currentPlan === 'max' && (
