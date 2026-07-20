@@ -15,6 +15,7 @@ import { ProductsNavigator } from '@features/products';
 import { CategoriesNavigator } from '@features/categories';
 import { ShelvesNavigator } from '@features/shelves';
 import { RacksNavigator } from '@features/racks';
+import { SuppliersNavigator } from '@features/suppliers';
 import { HistoryScreen } from '@features/history';
 import { SettingsScreen, ProfileScreen } from '@features/settings/screens';
 import { useAuthStore } from '@store/auth-store';
@@ -50,6 +51,7 @@ export type MainTabsParamList = {
   [NAV_KEYS.CATEGORIES_STACK]: undefined;
   [NAV_KEYS.SHELVES_STACK]: undefined;
   [NAV_KEYS.RACKS_STACK]: undefined;
+  [NAV_KEYS.SUPPLIERS_STACK]: undefined;
   [NAV_KEYS.HISTORY]: undefined;
   [NAV_KEYS.PROFILE]: undefined;
   [NAV_KEYS.SETTINGS]: undefined;
@@ -111,6 +113,15 @@ function MainNavigator() {
           title: 'Racks',
           headerShown: false,
           tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="server" size={size} color={color} />,
+        }}
+      />
+      <MainTabs.Screen
+        name={NAV_KEYS.SUPPLIERS_STACK}
+        component={SuppliersNavigator}
+        options={{
+          title: 'Suppliers',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="account-group" size={size} color={color} />,
         }}
       />
       <MainTabs.Screen

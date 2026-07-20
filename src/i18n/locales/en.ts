@@ -9,6 +9,7 @@ const en = {
     categories: 'Categories',
     racks: 'Racks',
     shelves: 'Shelves',
+    suppliers: 'Suppliers',
     history: 'History',
     settings: 'Settings',
   },
@@ -116,6 +117,13 @@ const en = {
       delete: 'Delete Rack',
       columns: { id: 'ID', name: 'Name', shelve_name: 'Shelve' },
     },
+    suppliers: {
+      title: 'Suppliers',
+      create: 'Create Supplier',
+      edit: 'Edit Supplier',
+      delete: 'Delete Supplier',
+      columns: { id: 'ID', name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone' },
+    },
   },
   forms: {
     label: {
@@ -131,6 +139,7 @@ const en = {
       categories: { name: 'Name', description: 'Description' },
       shelves: { name: 'Name' },
       racks: { name: 'Name', shelve_name: 'Shelve' },
+      suppliers: { name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone', address: 'Address' },
     },
     placeholders: {
       name: 'Enter name',
@@ -141,6 +150,10 @@ const en = {
       rack: 'Select rack',
       status: 'Select status',
       notes: 'Enter notes (optional)',
+      contact_name: 'Enter contact name',
+      email: 'Enter email',
+      phone: 'Enter phone',
+      address: 'Enter address',
     },
     validation: { required: 'This field is required' },
   },

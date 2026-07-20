@@ -11,6 +11,7 @@ const es: Translations = {
     categories: 'Categorías',
     racks: 'Estantes',
     shelves: 'Repisas',
+    suppliers: 'Suppliers',
     history: 'Historial',
     settings: 'Ajustes',
   },
@@ -118,6 +119,13 @@ const es: Translations = {
       delete: 'Eliminar estante',
       columns: { id: 'ID', name: 'Nombre', shelve_name: 'Repisa' },
     },
+    suppliers: {
+      title: 'Suppliers',
+      create: 'Create Supplier',
+      edit: 'Edit Supplier',
+      delete: 'Delete Supplier',
+      columns: { id: 'ID', name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone' },
+    },
   },
   forms: {
     label: {
@@ -133,6 +141,7 @@ const es: Translations = {
       categories: { name: 'Nombre', description: 'Descripción' },
       shelves: { name: 'Nombre' },
       racks: { name: 'Nombre', shelve_name: 'Repisa' },
+      suppliers: { name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone', address: 'Address' },
     },
     placeholders: {
       name: 'Ingresa el nombre',
@@ -143,6 +152,10 @@ const es: Translations = {
       rack: 'Selecciona estante',
       status: 'Selecciona estado',
       notes: 'Ingresa notas (opcional)',
+      contact_name: 'Enter contact name',
+      email: 'Enter email',
+      phone: 'Enter phone',
+      address: 'Enter address',
     },
     validation: { required: 'Este campo es obligatorio' },
   },

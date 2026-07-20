@@ -12,6 +12,7 @@ export const NAV_KEYS = {
   CATEGORIES_STACK: 'CategoriesStack',
   SHELVES_STACK: 'ShelvesStack',
   RACKS_STACK: 'RacksStack',
+  SUPPLIERS_STACK: 'SuppliersStack',
   HISTORY: 'History',
   SETTINGS: 'Settings',
   PROFILE: 'Profile',
@@ -32,6 +33,10 @@ export const NAV_KEYS = {
   // Racks screens
   RACK_LIST: 'RackList',
   RACK_FORM: 'RackForm',
+
+  // Suppliers screens
+  SUPPLIER_LIST: 'SupplierList',
+  SUPPLIER_FORM: 'SupplierForm',
 } as const;
 
 export type NavKey = (typeof NAV_KEYS)[keyof typeof NAV_KEYS];

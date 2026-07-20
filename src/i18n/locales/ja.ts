@@ -11,6 +11,7 @@ const ja: Translations = {
     categories: 'カテゴリー',
     racks: 'ラック',
     shelves: '棚',
+    suppliers: 'Suppliers',
     history: '履歴',
     settings: '設定',
   },
@@ -118,6 +119,13 @@ const ja: Translations = {
       delete: 'ラック削除',
       columns: { id: 'ID', name: '名前', shelve_name: '棚' },
     },
+    suppliers: {
+      title: 'Suppliers',
+      create: 'Create Supplier',
+      edit: 'Edit Supplier',
+      delete: 'Delete Supplier',
+      columns: { id: 'ID', name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone' },
+    },
   },
   forms: {
     label: {
@@ -133,6 +141,7 @@ const ja: Translations = {
       categories: { name: '名前', description: '説明' },
       shelves: { name: '名前' },
       racks: { name: '名前', shelve_name: '棚' },
+      suppliers: { name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone', address: 'Address' },
     },
     placeholders: {
       name: '名前を入力',
@@ -143,6 +152,10 @@ const ja: Translations = {
       rack: 'ラックを選択',
       status: 'ステータスを選択',
       notes: 'メモを入力（任意）',
+      contact_name: 'Enter contact name',
+      email: 'Enter email',
+      phone: 'Enter phone',
+      address: 'Enter address',
     },
     validation: { required: 'この項目は必須です' },
   },

@@ -11,6 +11,7 @@ const fr: Translations = {
     categories: 'Catégories',
     racks: 'Étagères',
     shelves: 'Rayons',
+    suppliers: 'Suppliers',
     history: 'Historique',
     settings: 'Paramètres',
   },
@@ -118,6 +119,13 @@ const fr: Translations = {
       delete: "Supprimer l'étagère",
       columns: { id: 'ID', name: 'Nom', shelve_name: 'Rayon' },
     },
+    suppliers: {
+      title: 'Suppliers',
+      create: 'Create Supplier',
+      edit: 'Edit Supplier',
+      delete: 'Delete Supplier',
+      columns: { id: 'ID', name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone' },
+    },
   },
   forms: {
     label: {
@@ -133,6 +141,7 @@ const fr: Translations = {
       categories: { name: 'Nom', description: 'Description' },
       shelves: { name: 'Nom' },
       racks: { name: 'Nom', shelve_name: 'Rayon' },
+      suppliers: { name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone', address: 'Address' },
     },
     placeholders: {
       name: 'Entrez le nom',
@@ -143,6 +152,10 @@ const fr: Translations = {
       rack: 'Sélectionner une étagère',
       status: 'Sélectionner un statut',
       notes: 'Entrez des notes (optionnel)',
+      contact_name: 'Enter contact name',
+      email: 'Enter email',
+      phone: 'Enter phone',
+      address: 'Enter address',
     },
     validation: { required: 'Ce champ est obligatoire' },
   },

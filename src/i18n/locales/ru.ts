@@ -11,6 +11,7 @@ const ru: Translations = {
     categories: 'Категории',
     racks: 'Стеллажи',
     shelves: 'Полки',
+    suppliers: 'Suppliers',
     history: 'История',
     settings: 'Настройки',
   },
@@ -118,6 +119,13 @@ const ru: Translations = {
       delete: 'Удалить стеллаж',
       columns: { id: 'ID', name: 'Название', shelve_name: 'Полка' },
     },
+    suppliers: {
+      title: 'Suppliers',
+      create: 'Create Supplier',
+      edit: 'Edit Supplier',
+      delete: 'Delete Supplier',
+      columns: { id: 'ID', name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone' },
+    },
   },
   forms: {
     label: {
@@ -133,6 +141,7 @@ const ru: Translations = {
       categories: { name: 'Название', description: 'Описание' },
       shelves: { name: 'Название' },
       racks: { name: 'Название', shelve_name: 'Полка' },
+      suppliers: { name: 'Name', contact_name: 'Contact Name', email: 'Email', phone: 'Phone', address: 'Address' },
     },
     placeholders: {
       name: 'Введите название',
@@ -143,6 +152,10 @@ const ru: Translations = {
       rack: 'Выберите стеллаж',
       status: 'Выберите статус',
       notes: 'Введите заметки (необязательно)',
+      contact_name: 'Enter contact name',
+      email: 'Enter email',
+      phone: 'Enter phone',
+      address: 'Enter address',
     },
     validation: { required: 'Это поле обязательно' },
   },
