@@ -8,12 +8,15 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
+  Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '@navigation/AppNavigator';
 import { useAuthStore } from '@store/auth-store';
 import { NAV_KEYS } from '@constants/nav-keys';
+import { apiClient } from '@api/axios-client';
 
 type Props = NativeStackScreenProps<
   AuthStackParamList,
@@ -23,6 +26,9 @@ type Props = NativeStackScreenProps<
 export function RegisterScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const register = useAuthStore((s) => s.register);
+  const pendingInviteCode = useAuthStore((s) => s.pendingInviteCode);
+  const setPendingInviteCode = useAuthStore((s) => s.setPendingInviteCode);
+  
   const [accountType, setAccountType] = useState<'individual' | 'organization'>(
     'individual',
   );
@@ -33,6 +39,33 @@ export function RegisterScreen({ navigation }: Props) {
   const [orgNameError, setOrgNameError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+  const [inviteCodeInput, setInviteCodeInput] = useState('');
+  const [verifyingInvite, setVerifyingInvite] = useState(false);
+  const [inviteMsg, setInviteMsg] = useState('');
+
+  const handleVerifyInvite = async () => {
+    if (!inviteCodeInput) return;
+    setVerifyingInvite(true);
+    try {
+      const res = await apiClient.get(`/invitations/${inviteCodeInput}`);
+      if (res.data?.data?.organization_name) {
+        setPendingInviteCode(inviteCodeInput);
+        setInviteMsg(`Invited to ${res.data.data.organization_name}!`);
+        if (res.data.data.email) {
+          setEmail(res.data.data.email);
+        }
+        // Force individual visually because they join an org anyway
+        setAccountType('individual');
+        setTimeout(() => setInviteModalVisible(false), 2000);
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e?.response?.data?.message || 'Invalid invite code');
+    } finally {
+      setVerifyingInvite(false);
+    }
+  };
 
   const handleRegister = async () => {
     setError(null);
@@ -207,8 +240,41 @@ export function RegisterScreen({ navigation }: Props) {
               {t('auth.hasAccount')}
             </Text>
           </TouchableOpacity>
+
+          <View className="h-[1px] bg-gray-200 my-4" />
+
+          <TouchableOpacity onPress={() => setInviteModalVisible(true)}>
+            <Text className="text-center text-gray-500 font-bold mb-4">
+              Got an invite code?
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal visible={inviteModalVisible} transparent animationType="slide">
+        <View className="flex-1 justify-end bg-black/50">
+          <View className="bg-white rounded-t-3xl p-6 shadow-lg">
+            <Text className="text-xl font-bold mb-2">Accept Invitation</Text>
+            <Text className="text-gray-500 mb-4">Enter your 6-character code.</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg px-4 py-3 mb-2 text-gray-900"
+              placeholder="Invite Code"
+              value={inviteCodeInput}
+              onChangeText={setInviteCodeInput}
+              autoCapitalize="characters"
+            />
+            {!!inviteMsg && <Text className="text-green-600 mb-4 font-bold">{inviteMsg}</Text>}
+            <View className="flex-row justify-end space-x-2 mt-2">
+              <TouchableOpacity onPress={() => setInviteModalVisible(false)} className="px-4 py-2">
+                <Text className="text-gray-500 font-bold">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleVerifyInvite} disabled={verifyingInvite} className="bg-red-600 px-6 py-2 rounded-lg">
+                <Text className="text-white font-bold">{verifyingInvite ? '...' : 'Verify'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }

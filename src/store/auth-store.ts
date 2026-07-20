@@ -27,6 +27,7 @@ interface AuthState {
   isAuthenticated: boolean;
   hasSeenWelcome: boolean;
   isOffline: boolean;
+  pendingInviteCode: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (dto: {
     name: string;
@@ -36,6 +37,8 @@ interface AuthState {
   }) => Promise<void>;
   logout: () => Promise<void>;
   setOffline: (offline: boolean) => void;
+  setPendingInviteCode: (code: string | null) => void;
+  processPendingInvite: (token: string) => Promise<void>;
   setHasSeenWelcome: () => void;
   loadFromStorage: () => Promise<void>;
   updateUser: (updates: Partial<AuthUser>) => void;
@@ -51,11 +54,41 @@ const clearTokens = async () => {
   await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
 };
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   hasSeenWelcome: false,
   isOffline: false,
+  pendingInviteCode: null,
+
+  setPendingInviteCode: (code) => set({ pendingInviteCode: code }),
+
+  processPendingInvite: async (token: string) => {
+    const { pendingInviteCode } = get();
+    if (!pendingInviteCode) return;
+    try {
+      const res = await fetch(`${BASE_URL}/invitations/accept`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ code: pendingInviteCode })
+      });
+      if (res.ok) {
+        set({ pendingInviteCode: null });
+        const meRes = await fetch(`${BASE_URL}/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (meRes.ok) {
+          const { data } = await meRes.json();
+          set({ user: data });
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to accept pending invite on mobile', e);
+    }
+  },
 
   login: async (email, password) => {
     const res = await fetch(`${BASE_URL}/auth/login`, {
@@ -73,6 +106,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     await storeTokens(data.access_token, data.refresh_token);
     await AsyncStorage.setItem(IS_OFFLINE_KEY, 'false');
     set({ user: data.user, isAuthenticated: true, isOffline: false });
+    await get().processPendingInvite(data.access_token);
   },
 
   register: async (dto) => {
@@ -91,6 +125,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     await storeTokens(data.access_token, data.refresh_token);
     await AsyncStorage.setItem(IS_OFFLINE_KEY, 'false');
     set({ user: data.user, isAuthenticated: true, isOffline: false });
+    await get().processPendingInvite(data.access_token);
   },
 
   logout: async () => {

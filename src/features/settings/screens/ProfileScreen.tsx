@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, TextInput, Image } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, TextInput, Image, Modal } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuthStore } from '@store/auth-store';
@@ -24,6 +25,29 @@ export function ProfileScreen() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [savingPassword, setSavingPassword] = useState(false);
+
+  const isOwnerOrAdmin = user?.role === 'owner' || user?.role === 'admin';
+
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('member');
+  const [sendingInvite, setSendingInvite] = useState(false);
+
+  const handleSendInvite = async () => {
+    if (!inviteEmail) return;
+    setSendingInvite(true);
+    try {
+      await apiClient.post('/invitations', { email: inviteEmail, role: inviteRole });
+      Alert.alert('Success', 'Invitation sent successfully');
+      setInviteModalVisible(false);
+      setInviteEmail('');
+      setInviteRole('member');
+    } catch (e: any) {
+      Alert.alert('Error', e?.response?.data?.message || 'Failed to send invite');
+    } finally {
+      setSendingInvite(false);
+    }
+  };
 
   useEffect(() => {
     setName(user?.name || '');
@@ -347,6 +371,23 @@ export function ProfileScreen() {
           </View>
         </View>
 
+        {/* Team Administration (Only for Owner/Admin of Team Accounts) */}
+        {userAccountType === 'team' && isOwnerOrAdmin && (
+          <View className="rounded-xl p-4 shadow-sm mb-4" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+            <Text className="text-base font-bold mb-3" style={{ color: colors.text }}>Team Administration</Text>
+            <TouchableOpacity
+              onPress={() => setInviteModalVisible(true)}
+              className="rounded-lg p-3 items-center flex-row justify-center"
+              style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: Colors.primary }}
+            >
+              <MaterialCommunityIcons name="email-plus-outline" size={20} color={Colors.primary} style={{ marginRight: 8 }} />
+              <Text className="font-bold" style={{ color: Colors.primary }}>
+                Invite Member
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Account Logout */}
         <TouchableOpacity
           onPress={handleLogout}
@@ -358,6 +399,48 @@ export function ProfileScreen() {
           </Text>
         </TouchableOpacity>
       </View>
+
+      <Modal visible={inviteModalVisible} transparent animationType="slide">
+        <View className="flex-1 justify-end bg-black/50">
+          <View className="bg-white rounded-t-3xl p-6 shadow-lg pb-10">
+            <Text className="text-xl font-bold mb-2 text-gray-900">Invite Team Member</Text>
+            <Text className="text-gray-500 mb-4">Send a 6-character code via email.</Text>
+            
+            <Text className="text-sm font-bold text-gray-700 mb-1 mt-2">Email Address</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
+              placeholder="colleague@example.com"
+              value={inviteEmail}
+              onChangeText={setInviteEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+            
+            <Text className="text-sm font-bold text-gray-700 mb-1">Role</Text>
+            <View className="border border-gray-300 rounded-lg mb-6 overflow-hidden">
+              <Picker
+                selectedValue={inviteRole}
+                onValueChange={(itemValue) => setInviteRole(itemValue)}
+                style={{ backgroundColor: 'white', color: '#000' }}
+                dropdownIconColor="#000"
+              >
+                <Picker.Item label="Member (Standard access)" value="member" />
+                <Picker.Item label="Admin (Can invite others)" value="admin" />
+              </Picker>
+            </View>
+
+            <View className="flex-row justify-end space-x-2 mt-2">
+              <TouchableOpacity onPress={() => setInviteModalVisible(false)} className="px-4 py-3">
+                <Text className="text-gray-500 font-bold">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleSendInvite} disabled={sendingInvite} className="bg-red-600 px-6 py-3 rounded-lg flex-row items-center">
+                {sendingInvite && <ActivityIndicator color="white" size="small" style={{ marginRight: 8 }} />}
+                <Text className="text-white font-bold text-base">Send Invite</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
