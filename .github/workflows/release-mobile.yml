@@ -21,7 +21,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
           cache: npm
           cache-dependency-path: '**/package-lock.json'
 
@@ -29,9 +29,10 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '17'
+          cache: 'gradle'
 
       - name: Install
-        run: npm install
+        run: npm ci
 
       - name: Build APK
         run: npm run build-android
