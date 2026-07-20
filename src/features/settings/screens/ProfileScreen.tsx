@@ -7,6 +7,7 @@ import { useAuthStore } from '@store/auth-store';
 import { useThemeStore } from '@store/theme-store';
 import { Colors } from '@constants/theme';
 import { apiClient } from '@api/axios-client';
+import { useStripe } from '@stripe/stripe-react-native';
 
 export function ProfileScreen() {
   const { t } = useTranslation();
@@ -16,6 +17,9 @@ export function ProfileScreen() {
   const [name, setName] = useState(user?.name || '');
   const [photoUrl, setPhotoUrl] = useState(user?.photo_url || '');
   const [savingProfile, setSavingProfile] = useState(false);
+  
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const [isInitializingCheckout, setIsInitializingCheckout] = useState(false);
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -94,6 +98,55 @@ export function ProfileScreen() {
       Alert.alert('Error', e?.response?.data?.message || e.message || 'Failed to update password');
     } finally {
       setSavingPassword(false);
+    }
+  };
+
+  const handleUpgrade = async (targetPlan: 'pro' | 'max') => {
+    setIsInitializingCheckout(true);
+    try {
+      const res = await apiClient.post('/billing/checkout-session', {
+        target_plan: targetPlan,
+        target_account_type: userAccountType,
+        client_type: 'mobile',
+      });
+
+      const { paymentIntent, ephemeralKey, customer } = res.data;
+      if (!paymentIntent || !ephemeralKey || !customer) {
+        throw new Error('Invalid response from server');
+      }
+
+      const { error: initError } = await initPaymentSheet({
+        merchantDisplayName: 'Stockmachine',
+        customerId: customer,
+        customerEphemeralKeySecret: ephemeralKey,
+        paymentIntentClientSecret: paymentIntent,
+        allowsDelayedPaymentMethods: false,
+        defaultBillingDetails: {
+          name: user?.name,
+          email: user?.email,
+        },
+      });
+
+      if (initError) {
+        throw new Error(initError.message);
+      }
+
+      const { error: presentError } = await presentPaymentSheet();
+      if (presentError) {
+        if (presentError.code === 'Canceled') return;
+        throw new Error(presentError.message);
+      }
+
+      // Success! Update local auth state
+      const meRes = await apiClient.get('/auth/me');
+      if (meRes.data?.data) {
+         updateUser(meRes.data.data);
+      }
+      Alert.alert('Success', 'Your subscription was successfully upgraded!');
+    } catch (e: any) {
+      Alert.alert('Checkout Failed', e.message || 'An error occurred during checkout.');
+    } finally {
+      setIsInitializingCheckout(false);
     }
   };
 
@@ -238,9 +291,38 @@ export function ProfileScreen() {
             </Text>
           </View>
           
-          <Text className="text-xs mt-3 text-center" style={{ color: colors.textSecondary }}>
-             Billing upgrades are managed via the Web Application.
-          </Text>
+          <View className="mt-6" style={{ gap: 10 }}>
+            {currentPlan === 'free' && (
+              <TouchableOpacity
+                onPress={() => handleUpgrade('pro')}
+                disabled={isInitializingCheckout}
+                className="rounded-lg p-4 items-center flex-row justify-center"
+                style={{ backgroundColor: '#2563EB', opacity: isInitializingCheckout ? 0.7 : 1 }}
+              >
+                <Text className="text-white font-bold mr-2 text-base">Upgrade to Pro</Text>
+                <Text className="text-white/80">(${userAccountType === 'individual' ? '4' : '7'}/mo)</Text>
+              </TouchableOpacity>
+            )}
+
+            {currentPlan !== 'max' && (
+              <TouchableOpacity
+                onPress={() => handleUpgrade('max')}
+                disabled={isInitializingCheckout}
+                className="rounded-lg p-4 items-center flex-row justify-center"
+                style={{ backgroundColor: '#10B981', opacity: isInitializingCheckout ? 0.7 : 1 }}
+              >
+                <Text className="text-white font-bold mr-2 text-base">Upgrade to Max</Text>
+                <Text className="text-white/80">(${userAccountType === 'individual' ? '11.99' : '19.99'}/mo)</Text>
+              </TouchableOpacity>
+            )}
+
+            {currentPlan === 'max' && (
+              <View className="p-4 items-center flex-row justify-center">
+                <MaterialCommunityIcons name="check-decagram" size={24} color="#10B981" style={{ marginRight: 8 }} />
+                <Text className="text-green-600 font-bold text-base">You have the Max Plan!</Text>
+              </View>
+            )}
+          </View>
         </View>
 
         {/* Account Logout */}

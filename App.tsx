@@ -7,6 +7,7 @@ import { useThemeStore } from './src/store/theme-store';
 import { useAuthStore } from './src/store/auth-store';
 import { useSyncStore } from './src/store/sync-store';
 import { loadSavedLanguage } from './src/i18n';
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 export default function App() {
   const [ready, setReady] = useState(false);
@@ -49,9 +50,9 @@ export default function App() {
   if (!ready) return null;
 
   return (
-    <>
+    <StripeProvider publishableKey="pk_test_51OaocLLziPoKDnBfC3llEbiKqhUI7CBTRnkjdwi7XpEcsuo9juKCPHKEZpq1RP9cmnt55xI2ztbAB3iy5z7ydCrg00HAyJwBqe">
       <StatusBar style={isDarkActive ? 'light' : 'dark'} />
       <AppNavigator isAuthenticated={isAuthenticated} isOffline={isOffline} />
-    </>
+    </StripeProvider>
   );
 }
