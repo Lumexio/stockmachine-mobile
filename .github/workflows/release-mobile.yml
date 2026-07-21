@@ -53,4 +53,4 @@ jobs:
           tag_name: ${{ github.ref_name || inputs.tag }}
           name: STOCKMACHINE Mobile ${{ github.ref_name || inputs.tag }}
           generate_release_notes: true
-          files: android/app/build/outputs/apk/release/app-release.apk
+          files: android/app/build/outputs/apk/release/*.apk

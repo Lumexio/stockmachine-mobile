@@ -1,2 +1,3 @@
-export { SettingsScreen } from './SettingsScreen';
-export { ProfileScreen } from './ProfileScreen';
+export * from './SettingsScreen';
+export * from './ProfileScreen';
+export * from './MenuScreen';

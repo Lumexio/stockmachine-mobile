@@ -167,7 +167,7 @@ export function RegisterScreen({ navigation }: Props) {
 
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
-            placeholder={t('auth.name')}
+            placeholder="John Doe"
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
@@ -176,7 +176,7 @@ export function RegisterScreen({ navigation }: Props) {
 
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
-            placeholder={t('auth.email')}
+            placeholder="you@example.com"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -187,7 +187,7 @@ export function RegisterScreen({ navigation }: Props) {
 
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
-            placeholder={t('auth.password')}
+            placeholder="********"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -235,9 +235,15 @@ export function RegisterScreen({ navigation }: Props) {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate(NAV_KEYS.LOGIN)}>
+          <TouchableOpacity onPress={() => navigation.navigate(NAV_KEYS.LOGIN)} className="mb-4">
             <Text className="text-center text-red-600">
               {t('auth.hasAccount')}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => useAuthStore.getState().setOffline(true)} className="mb-2">
+            <Text className="text-center text-gray-500 font-bold">
+              Cancel / Stay Offline
             </Text>
           </TouchableOpacity>
 

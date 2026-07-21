@@ -91,7 +91,7 @@ export function LoginScreen({ navigation }: Props) {
 
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
-            placeholder={t('auth.email')}
+            placeholder="you@example.com"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -102,7 +102,7 @@ export function LoginScreen({ navigation }: Props) {
 
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-2 text-gray-900"
-            placeholder={t('auth.password')}
+            placeholder="********"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -134,6 +134,15 @@ export function LoginScreen({ navigation }: Props) {
           >
             <Text className="text-center text-red-600">
               {t('auth.noAccount')}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => useAuthStore.getState().setOffline(true)}
+            className="mb-2"
+          >
+            <Text className="text-center text-gray-500 font-bold">
+              Cancel / Stay Offline
             </Text>
           </TouchableOpacity>
 

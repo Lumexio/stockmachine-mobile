@@ -17,7 +17,7 @@ import { ShelvesNavigator } from '@features/shelves';
 import { RacksNavigator } from '@features/racks';
 import { SuppliersNavigator } from '@features/suppliers';
 import { HistoryScreen } from '@features/history';
-import { SettingsScreen, ProfileScreen } from '@features/settings/screens';
+import { SettingsScreen, ProfileScreen, MenuScreen } from '@features/settings/screens';
 import { useAuthStore } from '@store/auth-store';
 
 import { HeaderRight } from '../components/HeaderRight';
@@ -52,6 +52,7 @@ export type MainTabsParamList = {
   [NAV_KEYS.SHELVES_STACK]: undefined;
   [NAV_KEYS.RACKS_STACK]: undefined;
   [NAV_KEYS.SUPPLIERS_STACK]: undefined;
+  [NAV_KEYS.MENU]: undefined;
   [NAV_KEYS.HISTORY]: undefined;
   [NAV_KEYS.PROFILE]: undefined;
   [NAV_KEYS.SETTINGS]: undefined;
@@ -125,10 +126,20 @@ function MainNavigator() {
         }}
       />
       <MainTabs.Screen
+        name={NAV_KEYS.MENU}
+        component={MenuScreen}
+        options={{
+          title: 'Menu',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="menu" size={size} color={color} />
+          ),
+        }}
+      />
+      <MainTabs.Screen
         name={NAV_KEYS.HISTORY}
         component={HistoryScreen}
         options={{
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="history" size={size} color={color} />,
+          tabBarButton: () => null,
         }}
       />
       <MainTabs.Screen
@@ -136,9 +147,7 @@ function MainNavigator() {
         component={ProfileScreen}
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" size={size} color={color} />
-          ),
+          tabBarButton: () => null,
         }}
       />
       <MainTabs.Screen
@@ -146,9 +155,7 @@ function MainNavigator() {
         component={SettingsScreen}
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="cog" size={size} color={color} />
-          ),
+          tabBarButton: () => null,
         }}
       />
     </MainTabs.Navigator>

@@ -16,6 +16,8 @@ export const NAV_KEYS = {
   HISTORY: 'History',
   SETTINGS: 'Settings',
   PROFILE: 'Profile',
+  MENU_STACK: 'MenuStack',
+  MENU: 'Menu',
 
   // Products screens
   PRODUCT_LIST: 'ProductList',

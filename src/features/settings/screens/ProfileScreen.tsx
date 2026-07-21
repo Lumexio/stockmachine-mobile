@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert, TextInput, Image, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, TextInput, Image, Modal, ActivityIndicator } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -178,8 +178,42 @@ export function ProfileScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
       <View className="p-4" style={{ gap: 16 }}>
         
+        {/* Offline / Unauthenticated State */}
+        {!user && (
+          <View className="rounded-xl p-6 shadow-sm items-center justify-center mt-10" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+            <MaterialCommunityIcons name="account-off-outline" size={64} color={colors.textSecondary} style={{ marginBottom: 16 }} />
+            <Text className="text-xl font-bold mb-2 text-center" style={{ color: colors.text }}>You are Offline</Text>
+            <Text className="text-sm text-center mb-8 px-4" style={{ color: colors.textSecondary }}>
+              Log in or create an account to sync your inventory, manage your team, and access premium features.
+            </Text>
+            
+            <TouchableOpacity
+              onPress={() => {
+                useAuthStore.getState().setHasSeenWelcome();
+                useAuthStore.getState().setOffline(false);
+              }}
+              className="bg-red-600 rounded-xl py-4 items-center shadow-sm flex-row justify-center w-full mb-4"
+            >
+              <MaterialCommunityIcons name="login" size={20} color="white" style={{ marginRight: 8 }} />
+              <Text className="text-white font-bold text-base">Log In</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                useAuthStore.getState().setHasSeenWelcome();
+                useAuthStore.getState().setOffline(false);
+              }}
+              className="border border-red-600 rounded-xl py-4 items-center flex-row justify-center w-full"
+            >
+              <MaterialCommunityIcons name="open-in-new" size={20} color="#E53935" style={{ marginRight: 8 }} />
+              <Text className="text-red-600 font-bold text-base">Create an Account</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* User Identity Form */}
         {user && (
+          <>
           <View className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-base font-bold" style={{ color: colors.text }}>User Profile</Text>
@@ -233,161 +267,6 @@ export function ProfileScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-        )}
-
-        {/* Security & Password */}
-        <View className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
-          <Text className="text-base font-bold mb-3" style={{ color: colors.text }}>
-            Security & Password
-          </Text>
-          <View style={{ gap: 10 }}>
-            <TextInput
-              placeholder="New Password"
-              secureTextEntry
-              value={newPassword}
-              onChangeText={setNewPassword}
-              placeholderTextColor={colors.textSecondary}
-              style={{
-                backgroundColor: colors.surface,
-                color: colors.text,
-                padding: 10,
-                borderRadius: 8,
-                borderWidth: 1,
-                borderColor: colors.border,
-              }}
-            />
-            <TextInput
-              placeholder="Confirm New Password"
-              secureTextEntry
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholderTextColor={colors.textSecondary}
-              style={{
-                backgroundColor: colors.surface,
-                color: colors.text,
-                padding: 10,
-                borderRadius: 8,
-                borderWidth: 1,
-                borderColor: colors.border,
-              }}
-            />
-            <TouchableOpacity
-              onPress={handleChangePassword}
-              disabled={savingPassword}
-              className="rounded-lg p-3 items-center mt-1"
-              style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: Colors.primary, opacity: savingPassword ? 0.6 : 1 }}
-            >
-              <Text className="font-bold" style={{ color: Colors.primary }}>
-                {savingPassword ? 'Updating...' : 'Update Password'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Plan & Limits */}
-        <View className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
-          <View className="flex-row justify-between items-center mb-2">
-            <Text className="text-base font-bold" style={{ color: colors.text }}>
-              Plan & Subscription
-            </Text>
-            <View className={`px-2 py-1 rounded-md ${currentPlan === 'max' ? 'bg-green-100' : currentPlan === 'pro' ? 'bg-blue-100' : 'bg-yellow-100'}`}>
-               <Text className={`text-xs font-bold ${currentPlan === 'max' ? 'text-green-700' : currentPlan === 'pro' ? 'text-blue-700' : 'text-yellow-700'}`}>
-                 {currentPlan.toUpperCase()} PLAN
-               </Text>
-            </View>
-          </View>
-          
-          <Text className="text-xs text-gray-500 mb-2">
-            Current Plan Limits
-          </Text>
-          <View style={{ gap: 4 }}>
-            <Text className="text-sm" style={{ color: colors.text }}>
-              • Max Products: <Text className="font-bold">{currentPlan === 'max' ? '500' : currentPlan === 'pro' ? '150' : '50'}</Text>
-            </Text>
-            <Text className="text-sm" style={{ color: colors.text }}>
-              • Max Locations: <Text className="font-bold">{currentPlan === 'max' ? '10' : currentPlan === 'pro' ? '5' : '1'}</Text>
-            </Text>
-            <Text className="text-sm" style={{ color: colors.text }}>
-              • Exports: <Text className="font-bold">{currentPlan === 'max' ? 'Excel, CSV, JSON, PDF Reports' : currentPlan === 'pro' ? 'Excel, CSV, JSON' : 'Excel Only'}</Text>
-            </Text>
-            <Text className="text-sm" style={{ color: colors.text }}>
-              • Max Team Accounts: <Text className="font-bold">{currentPlan === 'max' ? '50 Accounts' : currentPlan === 'pro' ? '15 Accounts' : '5 Accounts'}</Text>
-            </Text>
-          </View>
-          
-          <View className="mt-6" style={{ gap: 10 }}>
-            {currentPlan === 'free' && (
-              <View style={{ gap: 10 }}>
-                <TouchableOpacity
-                  onPress={() => handleUpgrade('pro', 'individual')}
-                  disabled={isInitializingCheckout}
-                  className="rounded-lg p-4 items-center flex-row justify-center"
-                  style={{ backgroundColor: '#2563EB', opacity: isInitializingCheckout ? 0.7 : 1 }}
-                >
-                  <Text className="text-white font-bold mr-2 text-base">Upgrade to Pro Solo</Text>
-                  <Text className="text-white/80">($4/mo)</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleUpgrade('pro', 'team')}
-                  disabled={isInitializingCheckout}
-                  className="rounded-lg p-4 items-center flex-row justify-center"
-                  style={{ backgroundColor: '#2563EB', opacity: isInitializingCheckout ? 0.7 : 1 }}
-                >
-                  <Text className="text-white font-bold mr-2 text-base">Upgrade to Pro Team</Text>
-                  <Text className="text-white/80">($7/mo)</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {currentPlan !== 'max' && (
-              <View style={{ gap: 10 }}>
-                <TouchableOpacity
-                  onPress={() => handleUpgrade('max', 'individual')}
-                  disabled={isInitializingCheckout}
-                  className="rounded-lg p-4 items-center flex-row justify-center"
-                  style={{ backgroundColor: '#10B981', opacity: isInitializingCheckout ? 0.7 : 1 }}
-                >
-                  <Text className="text-white font-bold mr-2 text-base">Upgrade to Max Solo</Text>
-                  <Text className="text-white/80">($11.99/mo)</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleUpgrade('max', 'team')}
-                  disabled={isInitializingCheckout}
-                  className="rounded-lg p-4 items-center flex-row justify-center"
-                  style={{ backgroundColor: '#10B981', opacity: isInitializingCheckout ? 0.7 : 1 }}
-                >
-                  <Text className="text-white font-bold mr-2 text-base">Upgrade to Max Team</Text>
-                  <Text className="text-white/80">($19.99/mo)</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {currentPlan === 'max' && (
-              <View className="p-4 items-center flex-row justify-center">
-                <MaterialCommunityIcons name="check-decagram" size={24} color="#10B981" style={{ marginRight: 8 }} />
-                <Text className="text-green-600 font-bold text-base">You have the Max Plan!</Text>
-              </View>
-            )}
-          </View>
-        </View>
-
-        {/* Team Administration (Only for Owner/Admin of Team Accounts) */}
-        {userAccountType === 'team' && isOwnerOrAdmin && (
-          <View className="rounded-xl p-4 shadow-sm mb-4" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
-            <Text className="text-base font-bold mb-3" style={{ color: colors.text }}>Team Administration</Text>
-            <TouchableOpacity
-              onPress={() => setInviteModalVisible(true)}
-              className="rounded-lg p-3 items-center flex-row justify-center"
-              style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: Colors.primary }}
-            >
-              <MaterialCommunityIcons name="email-plus-outline" size={20} color={Colors.primary} style={{ marginRight: 8 }} />
-              <Text className="font-bold" style={{ color: Colors.primary }}>
-                Invite Member
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-
         {/* Account Logout */}
         <TouchableOpacity
           onPress={handleLogout}
@@ -398,6 +277,8 @@ export function ProfileScreen() {
             {t('auth.logout')}
           </Text>
         </TouchableOpacity>
+        </>
+        )}
       </View>
 
       <Modal visible={inviteModalVisible} transparent animationType="slide">
