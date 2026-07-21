@@ -49,7 +49,7 @@
     "start": "NODE_OPTIONS=--openssl-legacy-provider expo start",
     "android": "NODE_OPTIONS=--openssl-legacy-provider expo start --android",
     "prebuild": "npx expo prebuild --platform android",
-    "build-android": "cd android && ./gradlew assembleRelease",
+    "build-android": "cd android && ./gradlew assembleRelease --no-daemon",
     "ios": "NODE_OPTIONS=--openssl-legacy-provider expo start --ios",
     "web": "NODE_OPTIONS=--openssl-legacy-provider expo start --web",
     "test": "jest --watchAll=false --passWithNoTests",
