@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useThemeStore } from '@store/theme-store';
 import { useProductsStore } from '../store/products-store';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { ProductsStackParamList } from '../types';
@@ -20,6 +21,7 @@ type Props = NativeStackScreenProps<
 
 export function ProductListScreen({ navigation }: Props) {
   const { t } = useTranslation();
+  const { colors } = useThemeStore();
   const { products, loading, fetchAll } = useProductsStore();
   const [search, setSearch] = useState('');
 
@@ -36,10 +38,12 @@ export function ProductListScreen({ navigation }: Props) {
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1" style={{ backgroundColor: colors.background }}>
       <View className="px-4 pt-4 pb-2">
         <TextInput
-          className="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900"
+          className="border rounded-lg px-4 py-2"
+          style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+          placeholderTextColor={colors.textSecondary}
           placeholder={t('common.search')}
           value={search}
           onChangeText={setSearch}
@@ -66,13 +70,14 @@ export function ProductListScreen({ navigation }: Props) {
             onPress={() =>
               navigation.navigate(NAV_KEYS.PRODUCT_DETAIL, { id: item.id })
             }
-            className="bg-white rounded-xl p-4 mb-3 shadow-sm"
+            className="rounded-xl p-4 mb-3 shadow-sm"
+            style={{ backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }}
             testID={`product-item-${item.id}`}
           >
-            <Text className="text-base font-medium text-gray-900">
+            <Text className="text-base font-medium" style={{ color: colors.text }}>
               {item.name}
             </Text>
-            <Text className="text-sm text-gray-500 mt-1">
+            <Text className="text-sm mt-1" style={{ color: colors.textSecondary }}>
               {t('tables.products.columns.quantity')}: {item.quantity}
             </Text>
           </TouchableOpacity>

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useThemeStore } from '@store/theme-store';
 import { useShelvesStore } from '../store/shelves-store';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { ShelvesStackParamList } from '../types';
@@ -21,6 +22,7 @@ type Props = NativeStackScreenProps<
 
 export function ShelfFormScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
+  const { colors } = useThemeStore();
   const { id } = route.params;
   const isEdit = id !== undefined;
   const { selectedShelf, create, update, fetchById } = useShelvesStore();
@@ -62,14 +64,16 @@ export function ShelfFormScreen({ route, navigation }: Props) {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1" style={{ backgroundColor: colors.background }}>
       <View className="p-4" style={{ gap: 16 }}>
         <View>
-          <Text className="text-sm text-gray-600 mb-1">
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
             {t('forms.label.shelves.name')}
           </Text>
           <TextInput
-            className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-gray-900"
+            className="border rounded-lg px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
             value={name}
             onChangeText={setName}
             placeholder={t('forms.placeholders.name')}

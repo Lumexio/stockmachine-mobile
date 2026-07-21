@@ -139,7 +139,7 @@ function MainNavigator() {
         name={NAV_KEYS.HISTORY}
         component={HistoryScreen}
         options={{
-          tabBarButton: () => null,
+          tabBarItemStyle: { display: 'none' },
         }}
       />
       <MainTabs.Screen
@@ -147,7 +147,7 @@ function MainNavigator() {
         component={ProfileScreen}
         options={{
           title: 'Profile',
-          tabBarButton: () => null,
+          tabBarItemStyle: { display: 'none' },
         }}
       />
       <MainTabs.Screen
@@ -155,7 +155,7 @@ function MainNavigator() {
         component={SettingsScreen}
         options={{
           title: 'Settings',
-          tabBarButton: () => null,
+          tabBarItemStyle: { display: 'none' },
         }}
       />
     </MainTabs.Navigator>

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useThemeStore } from '@store/theme-store';
 import { useRacksStore } from '../store/racks-store';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { RacksStackParamList } from '../types';
@@ -20,6 +21,7 @@ type Props = NativeStackScreenProps<
 
 export function RackListScreen({ navigation }: Props) {
   const { t } = useTranslation();
+  const { colors } = useThemeStore();
   const { racks, loading, fetchAll, remove } = useRacksStore();
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export function RackListScreen({ navigation }: Props) {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1" style={{ backgroundColor: colors.background }}>
       <FlatList
         data={racks}
         keyExtractor={(item) => item.id.toString()}
@@ -58,9 +60,9 @@ export function RackListScreen({ navigation }: Props) {
           ) : null
         }
         renderItem={({ item }) => (
-          <View className="bg-white rounded-xl p-4 mb-3 shadow-sm flex-row items-center">
+          <View className="rounded-xl p-4 mb-3 shadow-sm flex-row items-center" style={{ backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }}>
             <View className="flex-1">
-              <Text className="text-base font-medium text-gray-900">
+              <Text className="text-base font-medium" style={{ color: colors.text }}>
                 {item.name}
               </Text>
               {item.shelve_name !== undefined && (
