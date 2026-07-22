@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useThemeStore } from '@store/theme-store';
+import { useAuthStore } from '@store/auth-store';
 import { useCategoriesStore } from '../store/categories-store';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { CategoriesStackParamList } from '../types';
@@ -23,10 +24,11 @@ export function CategoryListScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
   const { categories, loading, fetchAll, remove } = useCategoriesStore();
+  const currentLocationId = useAuthStore(s => s.currentLocationId);
 
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
+  }, [fetchAll, currentLocationId]);
 
   const onRefresh = useCallback(() => {
     fetchAll();

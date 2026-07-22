@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useThemeStore } from '@store/theme-store';
+import { useAuthStore } from '@store/auth-store';
 import { useRacksStore } from '../store/racks-store';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { RacksStackParamList } from '../types';
@@ -23,10 +24,11 @@ export function RackListScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
   const { racks, loading, fetchAll, remove } = useRacksStore();
+  const currentLocationId = useAuthStore(s => s.currentLocationId);
 
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
+  }, [fetchAll, currentLocationId]);
 
   const onRefresh = useCallback(() => {
     fetchAll();

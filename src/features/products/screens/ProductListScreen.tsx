@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useThemeStore } from '@store/theme-store';
+import { useAuthStore } from '@store/auth-store';
 import { useProductsStore } from '../store/products-store';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { ProductsStackParamList } from '../types';
@@ -23,11 +24,12 @@ export function ProductListScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
   const { products, loading, fetchAll } = useProductsStore();
+  const currentLocationId = useAuthStore(s => s.currentLocationId);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
+  }, [fetchAll, currentLocationId]);
 
   const onRefresh = useCallback(() => {
     fetchAll();

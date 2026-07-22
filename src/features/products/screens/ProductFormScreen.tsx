@@ -36,6 +36,8 @@ export function ProductFormScreen({ route, navigation }: Props) {
 
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState('0');
+  const [costPrice, setCostPrice] = useState('0');
+  const [sellingPrice, setSellingPrice] = useState('0');
   const [categoryId, setCategoryId] = useState<number | undefined>();
   const [shelveId, setShelveId] = useState<number | undefined>();
   const [rackId, setRackId] = useState<number | undefined>();
@@ -79,6 +81,8 @@ export function ProductFormScreen({ route, navigation }: Props) {
     if (isEdit && selectedProduct) {
       setName(selectedProduct.name);
       setQuantity(selectedProduct.quantity.toString());
+      setCostPrice(selectedProduct.cost_price?.toString() || '0');
+      setSellingPrice(selectedProduct.selling_price?.toString() || '0');
       setCategoryId(selectedProduct.category_id ?? undefined);
       setShelveId(selectedProduct.shelve_id ?? undefined);
       setRackId(selectedProduct.rack_id ?? undefined);
@@ -96,6 +100,8 @@ export function ProductFormScreen({ route, navigation }: Props) {
       const dto = {
         name: name.trim(),
         quantity: parseInt(quantity, 10) || 0,
+        cost_price: parseFloat(costPrice) || 0,
+        selling_price: parseFloat(sellingPrice) || 0,
         ...(categoryId !== undefined && { category_id: categoryId }),
         ...(shelveId !== undefined && { shelve_id: shelveId }),
         ...(rackId !== undefined && { rack_id: rackId }),
@@ -163,6 +169,38 @@ export function ProductFormScreen({ route, navigation }: Props) {
             keyboardType="numeric"
             placeholder={t('forms.placeholders.quantity')}
             testID="quantity-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            {t('forms.label.products.cost_price')}
+          </Text>
+          <TextInput
+            className="border rounded-lg px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={costPrice}
+            onChangeText={setCostPrice}
+            keyboardType="numeric"
+            placeholder="0.00"
+            testID="cost-price-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            {t('forms.label.products.selling_price')}
+          </Text>
+          <TextInput
+            className="border rounded-lg px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={sellingPrice}
+            onChangeText={setSellingPrice}
+            keyboardType="numeric"
+            placeholder="0.00"
+            testID="selling-price-input"
           />
         </View>
 

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useHistoryStore } from '../store/history-store';
+import { useAuthStore } from '@store/auth-store';
 import { HistoryItem } from '../components/HistoryItem';
 import type { EntityType, OperationType } from '../api/history-api';
 import { Colors } from '@constants/theme';
@@ -30,10 +31,11 @@ export function HistoryScreen() {
     setOperationFilter,
     setEntityTypeFilter,
   } = useHistoryStore();
+  const currentLocationId = useAuthStore(s => s.currentLocationId);
 
   useEffect(() => {
     fetchPage(1);
-  }, [fetchPage]);
+  }, [fetchPage, currentLocationId]);
 
   const onRefresh = useCallback(() => {
     fetchPage(1);

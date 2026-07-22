@@ -5,6 +5,7 @@ export interface DashboardSummary {
   total_stock: number;
   low_stock_count: number;
   movements_today: number;
+  total_value: number;
 }
 
 export interface MovementData {

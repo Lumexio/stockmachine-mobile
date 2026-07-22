@@ -6,6 +6,7 @@ import { useAuthStore } from '@store/auth-store';
 import { useThemeStore } from '@store/theme-store';
 import { Colors } from '@constants/theme';
 import { NAV_KEYS } from '@constants/nav-keys';
+import { LocationPicker } from './LocationPicker';
 
 export function HeaderRight() {
   const navigation = useNavigation<any>();
@@ -16,6 +17,7 @@ export function HeaderRight() {
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12, gap: 12 }}>
+      <LocationPicker />
       <TouchableOpacity onPress={() => navigation.navigate(NAV_KEYS.PROFILE)}>
         <View
           style={{

@@ -13,12 +13,18 @@ export const apiClient = axios.create({
   timeout: 15_000,
 });
 
+import { useAuthStore } from '@store/auth-store';
+
 /** Attach Bearer token to every request */
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
     const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    const locationId = useAuthStore.getState().currentLocationId;
+    if (locationId) {
+      config.headers['X-Location-Id'] = locationId.toString();
     }
     return config;
   },

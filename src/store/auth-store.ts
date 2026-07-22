@@ -22,12 +22,20 @@ export interface AuthUser {
   } | null;
 }
 
+export interface Location {
+  id: number;
+  name: string;
+  org_id: number;
+}
+
 interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
   hasSeenWelcome: boolean;
   isOffline: boolean;
   pendingInviteCode: string | null;
+  currentLocationId: number | null;
+  locations: Location[];
   login: (email: string, password: string) => Promise<void>;
   register: (dto: {
     name: string;
@@ -42,6 +50,8 @@ interface AuthState {
   setHasSeenWelcome: () => void;
   loadFromStorage: () => Promise<void>;
   updateUser: (updates: Partial<AuthUser>) => void;
+  setCurrentLocationId: (id: number | null) => void;
+  fetchLocations: (token?: string) => Promise<void>;
 }
 
 const storeTokens = async (accessToken: string, refreshToken: string) => {
@@ -60,6 +70,31 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   hasSeenWelcome: false,
   isOffline: false,
   pendingInviteCode: null,
+  currentLocationId: null,
+  locations: [],
+
+  setCurrentLocationId: (id) => set({ currentLocationId: id }),
+
+  fetchLocations: async (tokenParam) => {
+    const state = get();
+    const token = tokenParam || (await SecureStore.getItemAsync(ACCESS_TOKEN_KEY));
+    if (!token || !state.user?.org_id) return;
+    try {
+      const res = await fetch(`${BASE_URL}/organizations/${state.user.org_id}/locations`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const { data } = await res.json();
+        const locations = data || [];
+        set({ locations });
+        if (locations.length > 0 && !state.currentLocationId) {
+          set({ currentLocationId: locations[0].id });
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to fetch locations', e);
+    }
+  },
 
   setPendingInviteCode: (code) => set({ pendingInviteCode: code }),
 
@@ -107,6 +142,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await AsyncStorage.setItem(IS_OFFLINE_KEY, 'false');
     set({ user: data.user, isAuthenticated: true, isOffline: false });
     await get().processPendingInvite(data.access_token);
+    await get().fetchLocations(data.access_token);
   },
 
   register: async (dto) => {
@@ -126,6 +162,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     await AsyncStorage.setItem(IS_OFFLINE_KEY, 'false');
     set({ user: data.user, isAuthenticated: true, isOffline: false });
     await get().processPendingInvite(data.access_token);
+    await get().fetchLocations(data.access_token);
   },
 
   logout: async () => {
@@ -142,7 +179,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       await clearTokens();
       await AsyncStorage.setItem(IS_OFFLINE_KEY, 'false');
-      set({ user: null, isAuthenticated: false, isOffline: false });
+      set({ user: null, isAuthenticated: false, isOffline: false, currentLocationId: null, locations: [] });
     }
   },
 
@@ -180,6 +217,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (res.ok) {
         const { data } = await res.json();
         set({ user: data, isAuthenticated: true, isOffline: false });
+        await get().fetchLocations(token);
       } else {
         await clearTokens();
       }

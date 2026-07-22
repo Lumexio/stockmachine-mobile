@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useThemeStore } from '@store/theme-store';
+import { useAuthStore } from '@store/auth-store';
 import { useShelvesStore } from '../store/shelves-store';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { ShelvesStackParamList } from '../types';
@@ -23,10 +24,11 @@ export function ShelfListScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
   const { shelves, loading, fetchAll, remove } = useShelvesStore();
+  const currentLocationId = useAuthStore(s => s.currentLocationId);
 
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
+  }, [fetchAll, currentLocationId]);
 
   const onRefresh = useCallback(() => {
     fetchAll();

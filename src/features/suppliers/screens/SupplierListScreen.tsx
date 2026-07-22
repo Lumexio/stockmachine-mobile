@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useThemeStore } from '@store/theme-store';
+import { useAuthStore } from '@store/auth-store';
 import { useSuppliersStore } from '../store/suppliers-store';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { SuppliersStackParamList } from '../types';
@@ -23,10 +24,11 @@ export function SupplierListScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
   const { suppliers, loading, fetchAll, remove } = useSuppliersStore();
+  const currentLocationId = useAuthStore(s => s.currentLocationId);
 
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
+  }, [fetchAll, currentLocationId]);
 
   const onRefresh = useCallback(() => {
     fetchAll();
