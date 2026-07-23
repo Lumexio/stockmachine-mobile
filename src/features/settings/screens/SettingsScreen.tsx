@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useThemeStore, type ColorScheme } from '@store/theme-store';
+import { checkForUpdates } from '../../../utils/github-updater';
 
 const LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -144,6 +145,24 @@ export function SettingsScreen() {
                 ))}
               </View>
             </View>
+          </View>
+        </View>
+
+        {/* Updater Section */}
+        <View>
+          <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
+            <MaterialCommunityIcons name="cellphone-arrow-down" size={16} color={colors.icon} />
+            <Text className="text-xs uppercase tracking-wide" style={{ color: colors.textSecondary }}>
+              {t('settings.updates', 'Updates')}
+            </Text>
+          </View>
+          <View className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+             <TouchableOpacity 
+               className="bg-red-600 rounded-lg py-3 items-center"
+               onPress={() => checkForUpdates(true)}
+             >
+                <Text className="text-white font-bold">Check for Updates</Text>
+             </TouchableOpacity>
           </View>
         </View>
       </View>

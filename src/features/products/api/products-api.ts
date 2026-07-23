@@ -3,6 +3,7 @@ import { apiClient } from '@api/axios-client';
 export interface Product {
   id: number;
   name: string;
+  description: string | null;
   quantity: number;
   category_id: number | null;
   shelve_id: number | null;
@@ -22,6 +23,7 @@ export interface Product {
 
 export interface CreateProductDto {
   name: string;
+  description?: string;
   quantity: number;
   category_id?: number;
   shelve_id?: number;

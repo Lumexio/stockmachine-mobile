@@ -89,6 +89,7 @@ export function LoginScreen({ navigation }: Props) {
             </View>
           )}
 
+          <Text className="text-sm mb-1 font-medium text-gray-700">{t('forms.label.email', 'Email Address')}</Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
             placeholder="you@example.com"
@@ -100,6 +101,7 @@ export function LoginScreen({ navigation }: Props) {
             testID="email-input"
           />
 
+          <Text className="text-sm mb-1 font-medium text-gray-700">{t('forms.label.password', 'Password')}</Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-2 text-gray-900"
             placeholder="********"

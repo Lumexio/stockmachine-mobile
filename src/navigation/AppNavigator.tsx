@@ -53,9 +53,6 @@ export type MainTabsParamList = {
   [NAV_KEYS.RACKS_STACK]: undefined;
   [NAV_KEYS.SUPPLIERS_STACK]: undefined;
   [NAV_KEYS.MENU]: undefined;
-  [NAV_KEYS.HISTORY]: undefined;
-  [NAV_KEYS.PROFILE]: undefined;
-  [NAV_KEYS.SETTINGS]: undefined;
 };
 const MainTabs = createBottomTabNavigator<MainTabsParamList>();
 
@@ -135,29 +132,6 @@ function MainNavigator() {
           ),
         }}
       />
-      <MainTabs.Screen
-        name={NAV_KEYS.HISTORY}
-        component={HistoryScreen}
-        options={{
-          tabBarItemStyle: { display: 'none' },
-        }}
-      />
-      <MainTabs.Screen
-        name={NAV_KEYS.PROFILE}
-        component={ProfileScreen}
-        options={{
-          title: 'Profile',
-          tabBarItemStyle: { display: 'none' },
-        }}
-      />
-      <MainTabs.Screen
-        name={NAV_KEYS.SETTINGS}
-        component={SettingsScreen}
-        options={{
-          title: 'Settings',
-          tabBarItemStyle: { display: 'none' },
-        }}
-      />
     </MainTabs.Navigator>
   );
 }
@@ -166,6 +140,9 @@ function MainNavigator() {
 export type RootStackParamList = {
   [NAV_KEYS.AUTH_STACK]: undefined;
   [NAV_KEYS.MAIN_TABS]: undefined;
+  [NAV_KEYS.HISTORY]: undefined;
+  [NAV_KEYS.PROFILE]: undefined;
+  [NAV_KEYS.SETTINGS]: undefined;
 };
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
@@ -199,10 +176,27 @@ export function AppNavigator({ isAuthenticated, isOffline }: AppNavigatorProps) 
     >
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated || isOffline ? (
-          <RootStack.Screen
-            name={NAV_KEYS.MAIN_TABS}
-            component={MainNavigator}
-          />
+          <RootStack.Group>
+            <RootStack.Screen
+              name={NAV_KEYS.MAIN_TABS}
+              component={MainNavigator}
+            />
+            <RootStack.Screen
+              name={NAV_KEYS.HISTORY}
+              component={HistoryScreen}
+              options={{ headerShown: true, title: 'History' }}
+            />
+            <RootStack.Screen
+              name={NAV_KEYS.PROFILE}
+              component={ProfileScreen}
+              options={{ headerShown: true, title: 'Profile' }}
+            />
+            <RootStack.Screen
+              name={NAV_KEYS.SETTINGS}
+              component={SettingsScreen}
+              options={{ headerShown: true, title: 'Settings' }}
+            />
+          </RootStack.Group>
         ) : (
           <RootStack.Screen
             name={NAV_KEYS.AUTH_STACK}

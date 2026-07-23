@@ -165,6 +165,7 @@ export function RegisterScreen({ navigation }: Props) {
             </View>
           )}
 
+          <Text className="text-sm mb-1 font-medium text-gray-700">{t('forms.label.name', 'Full Name')}</Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
             placeholder="John Doe"
@@ -174,6 +175,7 @@ export function RegisterScreen({ navigation }: Props) {
             testID="name-input"
           />
 
+          <Text className="text-sm mb-1 font-medium text-gray-700">{t('forms.label.email', 'Email Address')}</Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
             placeholder="you@example.com"
@@ -185,6 +187,7 @@ export function RegisterScreen({ navigation }: Props) {
             testID="email-input"
           />
 
+          <Text className="text-sm mb-1 font-medium text-gray-700">{t('forms.label.password', 'Password')}</Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
             placeholder="********"
@@ -196,6 +199,7 @@ export function RegisterScreen({ navigation }: Props) {
 
           {accountType === 'organization' && (
             <>
+              <Text className="text-sm mb-1 font-medium text-gray-700">{t('auth.orgName', 'Organization Name')}</Text>
               <TextInput
                 className={`border rounded-lg px-4 py-3 mb-1 text-gray-900 ${
                   orgNameError !== null ? 'border-red-400' : 'border-gray-300'
