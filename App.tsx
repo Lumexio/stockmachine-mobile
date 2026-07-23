@@ -1,7 +1,9 @@
 import './src/i18n';
 import React, { useEffect, useState } from 'react';
+import { View, AppState, AppStateStatus } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { AppState, AppStateStatus } from 'react-native';
+import { vars } from 'nativewind';
+import { Colors } from './src/constants/theme';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import { useThemeStore } from './src/store/theme-store';
 import { useAuthStore } from './src/store/auth-store';
@@ -47,12 +49,29 @@ export default function App() {
     };
   }, [ready, isAuthenticated]);
 
+  const { colors } = useThemeStore();
+
   if (!ready) return null;
+
+  const themeVars = vars({
+    '--theme-background': colors.background,
+    '--theme-surface': colors.surface,
+    '--theme-card': colors.card,
+    '--theme-text': colors.text,
+    '--theme-text-secondary': colors.textSecondary,
+    '--theme-border': colors.border,
+    '--theme-icon': colors.icon,
+    '--theme-primary': Colors.primary,
+    '--theme-primary-light': Colors.primaryLight,
+    '--theme-primary-dark': Colors.primaryDark,
+  });
 
   return (
     <StripeProvider publishableKey="pk_test_51OaocLLziPoKDnBfC3llEbiKqhUI7CBTRnkjdwi7XpEcsuo9juKCPHKEZpq1RP9cmnt55xI2ztbAB3iy5z7ydCrg00HAyJwBqe">
-      <StatusBar style={isDarkActive ? 'light' : 'dark'} />
-      <AppNavigator isAuthenticated={isAuthenticated} isOffline={isOffline} />
+      <View style={[{ flex: 1 }, themeVars]}>
+        <StatusBar style={isDarkActive ? 'light' : 'dark'} />
+        <AppNavigator isAuthenticated={isAuthenticated} isOffline={isOffline} />
+      </View>
     </StripeProvider>
   );
 }
