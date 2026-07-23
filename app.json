@@ -30,7 +30,20 @@
       "apiUrl": "http://localhost:3000/api/v1"
     },
     "plugins": [
-      "./plugins/withAbiSplits.js"
+      "./plugins/withAbiSplits.js",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraParams": [
+              {
+                "key": "org.gradle.jvmargs",
+                "value": "-Xmx4096m -XX:MaxMetaspaceSize=512m"
+              }
+            ]
+          }
+        }
+      ]
     ]
   }
 }
