@@ -102,6 +102,23 @@ export function ProductFormScreen({ route, navigation }: Props) {
     }
   }, [isEdit, selectedProduct]);
 
+  // ponytail: Prevent accidental back swipe on long form
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (!name.trim() || saving) return;
+      e.preventDefault();
+      Alert.alert(
+        t('actions.discard'),
+        t('messages.confirm.discard'),
+        [
+          { text: t('actions.cancel'), style: 'cancel', onPress: () => {} },
+          { text: t('actions.discard'), style: 'destructive', onPress: () => navigation.dispatch(e.data.action) },
+        ]
+      );
+    });
+    return unsubscribe;
+  }, [navigation, name, saving, t]);
+
   const handleSave = async () => {
     if (!name.trim()) {
       Alert.alert('', t('forms.validation.required'));
