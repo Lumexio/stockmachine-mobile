@@ -16,7 +16,7 @@ export function KpiCard({ label, value, accent = '#E53935', onPress }: KpiCardPr
   return (
     <Container
       onPress={onPress}
-      className="rounded-xl shadow-sm p-4"
+      className="rounded-3xl  p-4"
       style={{ flex: 1, margin: 4, minWidth: '45%', backgroundColor: colors.surface }}
     >
       <Text className="text-xs mb-1" style={{ color: colors.textSecondary }}>{label}</Text>

@@ -180,7 +180,7 @@ export function ProfileScreen() {
         
         {/* Offline / Unauthenticated State */}
         {!user && (
-          <View className="rounded-xl p-6 shadow-sm items-center justify-center mt-10" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+          <View className="rounded-3xl p-6  items-center justify-center mt-10" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
             <MaterialCommunityIcons name="account-off-outline" size={64} color={colors.textSecondary} style={{ marginBottom: 16 }} />
             <Text className="text-xl font-bold mb-2 text-center" style={{ color: colors.text }}>You are Offline</Text>
             <Text className="text-sm text-center mb-8 px-4" style={{ color: colors.textSecondary }}>
@@ -192,7 +192,7 @@ export function ProfileScreen() {
                 useAuthStore.getState().setHasSeenWelcome();
                 useAuthStore.getState().setOffline(false);
               }}
-              className="bg-red-600 rounded-xl py-4 items-center shadow-sm flex-row justify-center w-full mb-4"
+              className="bg-red-600 rounded-3xl py-4 items-center  flex-row justify-center w-full mb-4"
             >
               <MaterialCommunityIcons name="login" size={20} color="white" style={{ marginRight: 8 }} />
               <Text className="text-white font-bold text-base">Log In</Text>
@@ -203,7 +203,7 @@ export function ProfileScreen() {
                 useAuthStore.getState().setHasSeenWelcome();
                 useAuthStore.getState().setOffline(false);
               }}
-              className="border border-red-600 rounded-xl py-4 items-center flex-row justify-center w-full"
+              className="border border-red-600 rounded-3xl py-4 items-center flex-row justify-center w-full"
             >
               <MaterialCommunityIcons name="open-in-new" size={20} color="#E53935" style={{ marginRight: 8 }} />
               <Text className="text-red-600 font-bold text-base">Create an Account</Text>
@@ -214,7 +214,7 @@ export function ProfileScreen() {
         {/* User Identity Form */}
         {user && (
           <>
-          <View className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+          <View className="rounded-3xl p-4 " style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-base font-bold" style={{ color: colors.text }}>User Profile</Text>
               <View className="bg-red-100 px-2 py-1 rounded-md">
@@ -270,7 +270,7 @@ export function ProfileScreen() {
         {/* Account Logout */}
         <TouchableOpacity
           onPress={handleLogout}
-          className="bg-red-600 rounded-xl py-4 items-center shadow-sm flex-row justify-center mt-2 mb-8"
+          className="bg-red-600 rounded-3xl py-4 items-center  flex-row justify-center mt-2 mb-8"
         >
           <MaterialCommunityIcons name="logout" size={20} color="white" style={{ marginRight: 8 }} />
           <Text className="text-white font-bold text-base">

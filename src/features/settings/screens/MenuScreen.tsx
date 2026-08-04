@@ -40,7 +40,7 @@ export function MenuScreen() {
           {t('common.menu', 'Menu')}
         </Text>
 
-        <View className="rounded-xl overflow-hidden shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+        <View className="rounded-3xl overflow-hidden " style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
           {menuItems.map((item, index) => (
             <TouchableOpacity
               key={item.route}

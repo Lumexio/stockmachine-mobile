@@ -26,7 +26,7 @@ export function HistoryItem({ record }: HistoryItemProps) {
       : null;
 
   return (
-    <View className="bg-white rounded-xl p-4 mb-3 shadow-sm">
+    <View className="bg-white rounded-3xl p-4 mb-3 ">
       <View className="flex-row items-center justify-between mb-2">
         <View
           className="px-2 rounded"

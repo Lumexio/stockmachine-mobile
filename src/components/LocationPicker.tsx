@@ -13,6 +13,7 @@ export function LocationPicker() {
   const [createMode, setCreateMode] = useState(false);
   const [newLocationName, setNewLocationName] = useState('');
   const [creating, setCreating] = useState(false);
+  const [locationError, setLocationError] = useState('');
 
   // Only Admin or Owner
   if (!user || (user.role !== 'admin' && user.role !== 'owner')) return null;
@@ -22,6 +23,7 @@ export function LocationPicker() {
   const handleCreate = async () => {
     if (!newLocationName.trim()) return;
     setCreating(true);
+    setLocationError('');
     try {
       await apiClient.post(`/organizations/${user.org_id}/locations`, { name: newLocationName.trim() });
       await fetchLocations();
@@ -29,7 +31,7 @@ export function LocationPicker() {
       setCreateMode(false);
       setModalVisible(false);
     } catch (e: any) {
-      Alert.alert('Error', e?.response?.data?.message || 'Failed to create location');
+      setLocationError(e?.response?.data?.message || 'Failed to create location');
     } finally {
       setCreating(false);
     }
@@ -50,8 +52,8 @@ export function LocationPicker() {
         <MaterialCommunityIcons name="chevron-down" size={18} color={Colors.primary} />
       </TouchableOpacity>
 
-      <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => { setModalVisible(false); setCreateMode(false); }}>
-        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }} activeOpacity={1} onPressOut={() => { setModalVisible(false); setCreateMode(false); }}>
+      <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => { setModalVisible(false); setCreateMode(false); setLocationError(''); }}>
+        <TouchableOpacity style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }} activeOpacity={1} onPressOut={() => { setModalVisible(false); setCreateMode(false); setLocationError(''); }}>
           <View style={{ width: '85%', backgroundColor: colors.card, borderRadius: 24, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 10 }} onStartShouldSetResponder={() => true}>
             {!createMode ? (
               <>
@@ -74,6 +76,11 @@ export function LocationPicker() {
             ) : (
               <>
                 <Text style={{ color: colors.text, fontSize: 18, fontWeight: 'bold', marginBottom: 16 }}>New Location</Text>
+                {!!locationError && (
+                  <View style={{ backgroundColor: `${Colors.error}20`, padding: 12, borderRadius: 8, marginBottom: 16 }}>
+                    <Text style={{ color: Colors.error, fontSize: 14 }}>{locationError}</Text>
+                  </View>
+                )}
                 <TextInput
                   style={{ backgroundColor: colors.background, color: colors.text, borderColor: colors.border, borderWidth: 1, borderRadius: 8, padding: 12, marginBottom: 16 }}
                   placeholder="Location Name"

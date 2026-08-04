@@ -46,7 +46,7 @@ export function SettingsScreen() {
               {t('settings.language')}
             </Text>
           </View>
-          <View className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+          <View className="rounded-3xl p-4 " style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
             <View className="flex-row flex-wrap" style={{ gap: 8 }}>
               {LANGUAGES.map((lang) => (
                 <TouchableOpacity
@@ -81,7 +81,7 @@ export function SettingsScreen() {
               {t('settings.appearance')}
             </Text>
           </View>
-          <View className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+          <View className="rounded-3xl p-4 " style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
             {/* Dark Mode Switch */}
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-sm font-semibold" style={{ color: colors.text }}>
@@ -156,7 +156,7 @@ export function SettingsScreen() {
               {t('settings.updates', 'Updates')}
             </Text>
           </View>
-          <View className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+          <View className="rounded-3xl p-4 " style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
              <TouchableOpacity 
                className="bg-red-600 rounded-lg py-3 items-center"
                onPress={() => checkForUpdates(true)}

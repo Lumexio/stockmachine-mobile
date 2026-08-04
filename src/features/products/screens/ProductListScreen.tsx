@@ -43,7 +43,7 @@ export function ProductListScreen({ navigation }: Props) {
     <View className="flex-1" style={{ backgroundColor: colors.background }}>
       <View className="px-4 pt-4 pb-2">
         <TextInput
-          className="border rounded-lg px-4 py-2"
+          className="border rounded-full px-4 py-2"
           style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
           placeholderTextColor={colors.textSecondary}
           placeholder={t('common.search')}
@@ -72,7 +72,7 @@ export function ProductListScreen({ navigation }: Props) {
             onPress={() =>
               navigation.navigate(NAV_KEYS.PRODUCT_DETAIL, { id: item.id })
             }
-            className="rounded-xl p-4 mb-3 shadow-sm"
+            className="rounded-3xl p-4 mb-3 "
             style={{ backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }}
             testID={`product-item-${item.id}`}
           >
@@ -87,7 +87,13 @@ export function ProductListScreen({ navigation }: Props) {
       />
 
       <TouchableOpacity
-        onPress={() => navigation.navigate(NAV_KEYS.PRODUCT_FORM, {})}
+        onPress={() => {
+          if (!currentLocationId) {
+            import('react-native').then(rn => rn.Alert.alert('Error', t('messages.error.noLocation') || 'Please create or select a location first.'));
+            return;
+          }
+          navigation.navigate(NAV_KEYS.PRODUCT_FORM, {})
+        }}
         className="absolute bottom-6 right-6 bg-red-600 w-14 h-14 rounded-full items-center justify-center shadow-lg"
         testID="add-product-button"
       >
