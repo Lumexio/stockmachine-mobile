@@ -28,6 +28,17 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Inject Version from Tag
+        run: |
+          TAG=${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+          if [[ "$TAG" == v* ]]; then
+            VERSION="${TAG#v}"
+            # Update package.json version
+            npm pkg set version="$VERSION"
+            # Update app.json version & versionCode
+            jq '.expo.version = "'$VERSION'" | .expo.android.versionCode = '${{ github.run_number }} app.json > app.tmp && mv app.tmp app.json
+          fi
+
       - name: Generate Native Android Folder (Prebuild)
         run: npm run prebuild
 
