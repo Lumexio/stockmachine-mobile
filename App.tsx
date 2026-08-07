@@ -1,6 +1,6 @@
 import './src/i18n';
 import React, { useEffect, useState } from 'react';
-import { View, AppState, AppStateStatus } from 'react-native';
+import { View, AppState, AppStateStatus, Alert, Linking } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { vars } from 'nativewind';
 import { Colors } from './src/constants/theme';
@@ -10,11 +10,17 @@ import { useAuthStore } from './src/store/auth-store';
 import { useSyncStore } from './src/store/sync-store';
 import { loadSavedLanguage } from './src/i18n';
 import { StripeProvider } from '@stripe/stripe-react-native';
+import { checkForUpdates } from './src/utils/github-updater';
 
 export default function App() {
   const [ready, setReady] = useState(false);
   const { loadSaved, isDarkActive } = useThemeStore();
   const { isAuthenticated, isOffline, loadFromStorage } = useAuthStore();
+
+  // ponytail: Zero-boilerplate GitHub Releases OTA Updater
+  useEffect(() => {
+    checkForUpdates(false);
+  }, []);
 
   useEffect(() => {
     Promise.all([loadSaved(), loadSavedLanguage(), loadFromStorage()]).finally(
