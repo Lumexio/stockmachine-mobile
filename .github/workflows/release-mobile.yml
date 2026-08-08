@@ -66,6 +66,7 @@ jobs:
         env:
           # ponytail: Build ONLY for modern Androids (arm64) to cut 30min C++ compile time down to 5mins
           ORG_GRADLE_PROJECT_reactNativeArchitectures: arm64-v8a
+          EXPO_PUBLIC_API_URL: https://api.stockmachine.online/api/v1
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
