@@ -13,7 +13,9 @@ export function HeaderRight() {
   const user = useAuthStore((s) => s.user);
   const colors = useThemeStore((s) => s.colors);
 
-  if (!user) return null;
+  const isOffline = useAuthStore((s) => s.isOffline);
+
+  if (!user && !isOffline) return null;
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12, gap: 12 }}>
@@ -30,12 +32,14 @@ export function HeaderRight() {
             overflow: 'hidden'
           }}
         >
-          {user.photo_url ? (
+          {user?.photo_url ? (
             <Image source={{ uri: user.photo_url }} style={{ width: '100%', height: '100%' }} />
-          ) : (
+          ) : user?.name ? (
             <Text style={{ color: '#FFFFFF', fontWeight: 'bold', fontSize: 12 }}>
-              {user.name ? user.name.slice(0, 2).toUpperCase() : 'US'}
+              {user.name.slice(0, 2).toUpperCase()}
             </Text>
+          ) : (
+            <MaterialCommunityIcons name="account" size={16} color="white" />
           )}
         </View>
       </TouchableOpacity>
