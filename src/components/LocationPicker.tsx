@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Modal, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuthStore } from '@store/auth-store';
@@ -7,7 +7,7 @@ import { Colors } from '@constants/theme';
 import { apiClient } from '@api/axios-client';
 
 export function LocationPicker() {
-  const { user, locations, currentLocationId, setCurrentLocationId, fetchLocations } = useAuthStore();
+  const { isOffline, user, locations, currentLocationId, setCurrentLocationId, fetchLocations, addLocalLocation } = useAuthStore();
   const { colors } = useThemeStore();
   const [modalVisible, setModalVisible] = useState(false);
   const [createMode, setCreateMode] = useState(false);
@@ -15,18 +15,36 @@ export function LocationPicker() {
   const [creating, setCreating] = useState(false);
   const [locationError, setLocationError] = useState('');
 
-  // Only Admin or Owner
-  if (!user || (user.role !== 'admin' && user.role !== 'owner')) return null;
+  // Only Admin or Owner or Offline User
+  if (user && user.role !== 'admin' && user.role !== 'owner') return null;
+
+  useEffect(() => {
+    if (locations.length === 0) {
+      setModalVisible(true);
+      setCreateMode(true);
+    }
+  }, [locations.length]);
 
   const currentLoc = locations.find(l => l.id === currentLocationId);
 
   const handleCreate = async () => {
     if (!newLocationName.trim()) return;
+    
+    // Offline user max 1 location
+    if (isOffline && locations.length >= 1) {
+      setLocationError('Offline freemium limited to 1 location');
+      return;
+    }
+
     setCreating(true);
     setLocationError('');
     try {
-      await apiClient.post(`/organizations/${user.org_id}/locations`, { name: newLocationName.trim() });
-      await fetchLocations();
+      if (isOffline) {
+        addLocalLocation(newLocationName.trim());
+      } else {
+        await apiClient.post(`/organizations/${user?.org_id}/locations`, { name: newLocationName.trim() });
+        await fetchLocations();
+      }
       setNewLocationName('');
       setCreateMode(false);
       setModalVisible(false);

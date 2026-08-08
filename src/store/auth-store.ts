@@ -52,6 +52,7 @@ interface AuthState {
   updateUser: (updates: Partial<AuthUser>) => void;
   setCurrentLocationId: (id: number | null) => void;
   fetchLocations: (token?: string) => Promise<void>;
+  addLocalLocation: (name: string) => void;
 }
 
 const storeTokens = async (accessToken: string, refreshToken: string) => {
@@ -74,6 +75,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   locations: [],
 
   setCurrentLocationId: (id) => set({ currentLocationId: id }),
+
+  addLocalLocation: (name) => {
+    const newLoc = { id: Date.now() * -1, name };
+    set((state) => ({
+      locations: [...state.locations, newLoc],
+      currentLocationId: newLoc.id
+    }));
+  },
 
   fetchLocations: async (tokenParam) => {
     const state = get();
