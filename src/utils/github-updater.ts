@@ -1,4 +1,5 @@
 import { Alert, Platform, Linking } from 'react-native';
+import Constants from 'expo-constants';
 import packageJson from '../../package.json';
 
 const GITHUB_REPO = 'Lumexio/stockmachine-mobile';
@@ -10,7 +11,7 @@ export async function checkForUpdates(manualCheck = false) {
   }
 
   try {
-    const currentVersion = packageJson.version;
+    const currentVersion = Constants.expoConfig?.version ?? packageJson.version;
     const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`);
     const release = await response.json();
     
