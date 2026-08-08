@@ -56,7 +56,6 @@ jobs:
         with:
           path: |
             android/.gradle
-            android/app/build
             android/app/.cxx
           key: android-build-${{ hashFiles('package-lock.json') }}
           restore-keys: android-build-
