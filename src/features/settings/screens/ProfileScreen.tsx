@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Picker } from '@react-native-picker/picker';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '@store/auth-store';
 import { useThemeStore } from '@store/theme-store';
 import { Colors } from '@constants/theme';
@@ -12,7 +13,7 @@ import { useStripe } from '@stripe/stripe-react-native';
 
 export function ProfileScreen() {
   const { t } = useTranslation();
-  const { user, logout, updateUser } = useAuthStore();
+  const { user, logout, updateUser, isOfflineMode } = useAuthStore();
   const { colors } = useThemeStore();
 
   const [name, setName] = useState(user?.name || '');
@@ -68,6 +69,20 @@ export function ProfileScreen() {
     ]);
   };
 
+  const handleClearData = () => {
+    Alert.alert('Clear All Data', 'Are you sure you want to erase all local data? This cannot be undone.', [
+      { text: t('actions.cancel'), style: 'cancel' },
+      {
+        text: 'Erase Data',
+        style: 'destructive',
+        onPress: async () => {
+          await AsyncStorage.clear();
+          logout();
+        },
+      },
+    ]);
+  };
+
   const handlePickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
@@ -86,17 +101,21 @@ export function ProfileScreen() {
     if (!name.trim()) return;
     setSavingProfile(true);
     try {
-      await apiClient.post('/auth/profile', {
-        name: name,
-        photo_url: photoUrl,
-      });
-      // Update local state and wait for sync
-      updateUser({ name, photo_url: photoUrl });
-      const res = await apiClient.get('/auth/me');
-      if (res.data?.data) {
-         updateUser(res.data.data);
+      if (isOfflineMode) {
+        updateUser({ name, photo_url: photoUrl });
+        Alert.alert('Success', 'Profile updated locally');
+      } else {
+        await apiClient.post('/auth/profile', {
+          name: name,
+          photo_url: photoUrl,
+        });
+        updateUser({ name, photo_url: photoUrl });
+        const res = await apiClient.get('/auth/me');
+        if (res.data?.data) {
+           updateUser(res.data.data);
+        }
+        Alert.alert('Success', 'Profile updated successfully');
       }
-      Alert.alert('Success', 'Profile updated successfully');
     } catch (e: any) {
       Alert.alert('Error', e?.response?.data?.message || e.message || 'Failed to update profile');
     } finally {
@@ -270,11 +289,22 @@ export function ProfileScreen() {
         {/* Account Logout */}
         <TouchableOpacity
           onPress={handleLogout}
-          className="bg-red-600 rounded-3xl py-4 items-center  flex-row justify-center mt-2 mb-8"
+          className="bg-red-600 rounded-3xl py-4 items-center flex-row justify-center mt-2 mb-4"
         >
           <MaterialCommunityIcons name="logout" size={20} color="white" style={{ marginRight: 8 }} />
           <Text className="text-white font-bold text-base">
             {t('auth.logout')}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Clear Data */}
+        <TouchableOpacity
+          onPress={handleClearData}
+          className="bg-gray-800 rounded-3xl py-4 items-center flex-row justify-center mb-8"
+        >
+          <MaterialCommunityIcons name="delete-forever" size={20} color="white" style={{ marginRight: 8 }} />
+          <Text className="text-white font-bold text-base">
+            Erase Local Data
           </Text>
         </TouchableOpacity>
         </>
