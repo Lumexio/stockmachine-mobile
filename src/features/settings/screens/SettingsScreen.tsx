@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useThemeStore, type ColorScheme } from '@store/theme-store';
+import { useAuthStore } from '@store/auth-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { checkForUpdates } from '../../../utils/github-updater';
 
 const LANGUAGES = [
@@ -32,8 +34,24 @@ const DARK_SCHEMES: Array<{ value: ColorScheme; label: string }> = [
 export function SettingsScreen() {
   const { t, i18n } = useTranslation();
   const { scheme, colors, isDarkActive, setScheme, toggle } = useThemeStore();
+  const { user } = useAuthStore();
+  const [storagePreference, setStoragePreference] = React.useState<string | null>('server');
+
+  React.useEffect(() => {
+    AsyncStorage.getItem('storage_preference').then((pref) => {
+      if (pref) setStoragePreference(pref);
+    });
+  }, []);
+
+  const handleStorageChange = async (val: string) => {
+    setStoragePreference(val);
+    await AsyncStorage.setItem('storage_preference', val);
+  };
 
   const currentLang = (i18n.language.split('-')[0] ?? 'en') as LangCode;
+  
+  const canManageSnapshots = ['owner', 'admin'].includes(user?.role || '');
+  const isFreePlan = user?.organization?.plan_id === 'free';
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: colors.background }}>
@@ -147,6 +165,58 @@ export function SettingsScreen() {
             </View>
           </View>
         </View>
+
+        {/* Data Sync Section */}
+        {isFreePlan && canManageSnapshots && (
+          <View>
+            <View className="flex-row items-center mb-2" style={{ gap: 6 }}>
+              <MaterialCommunityIcons name="cloud-sync" size={16} color={colors.icon} />
+              <Text className="text-xs uppercase tracking-wide" style={{ color: colors.textSecondary }}>
+                Data Sync
+              </Text>
+            </View>
+            <View className="rounded-3xl p-4 " style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border }}>
+              <Text className="text-xs font-bold uppercase mb-3" style={{ color: colors.textSecondary }}>
+                Storage Preference
+              </Text>
+              <View className="flex-row" style={{ gap: 8 }}>
+                <TouchableOpacity
+                  onPress={() => handleStorageChange('server')}
+                  className="flex-1 p-3 rounded-lg border items-center justify-center"
+                  style={{
+                    backgroundColor: storagePreference === 'server' ? colors.surface : colors.card,
+                    borderColor: storagePreference === 'server' ? '#E53935' : colors.border,
+                  }}
+                >
+                  <MaterialCommunityIcons name="server" size={20} color={storagePreference === 'server' ? '#E53935' : colors.icon} />
+                  <Text className="text-xs font-semibold mt-1" style={{ color: storagePreference === 'server' ? '#E53935' : colors.text }}>
+                    Comet Server
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => handleStorageChange('gdrive')}
+                  className="flex-1 p-3 rounded-lg border items-center justify-center"
+                  style={{
+                    backgroundColor: storagePreference === 'gdrive' ? colors.surface : colors.card,
+                    borderColor: storagePreference === 'gdrive' ? '#E53935' : colors.border,
+                  }}
+                >
+                  <MaterialCommunityIcons name="google-drive" size={20} color={storagePreference === 'gdrive' ? '#E53935' : colors.icon} />
+                  <Text className="text-xs font-semibold mt-1" style={{ color: storagePreference === 'gdrive' ? '#E53935' : colors.text }}>
+                    Google Drive
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              {storagePreference === 'gdrive' && (
+                <View className="mt-4 p-3 rounded-lg" style={{ backgroundColor: colors.surface }}>
+                  <Text className="text-xs" style={{ color: colors.text }}>
+                    Google Drive sync is managed via the Web Dashboard (stockmachine.online). Please log in there to authorize and perform cloud sync operations.
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
 
         {/* Updater Section */}
         <View>

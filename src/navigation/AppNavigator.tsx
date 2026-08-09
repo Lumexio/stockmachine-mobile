@@ -21,6 +21,7 @@ import { SettingsScreen, ProfileScreen, MenuScreen } from '@features/settings/sc
 import { useAuthStore } from '@store/auth-store';
 
 import { HeaderRight } from '../components/HeaderRight';
+import { OnboardingConfigModal } from '../components/OnboardingConfigModal';
 
 // ── Auth navigator ────────────────────────────────────────────────────────────
 export type AuthStackParamList = {
@@ -204,6 +205,7 @@ export function AppNavigator({ isAuthenticated, isOffline }: AppNavigatorProps) 
           />
         )}
       </RootStack.Navigator>
+      <OnboardingConfigModal />
     </NavigationContainer>
   );
 }
