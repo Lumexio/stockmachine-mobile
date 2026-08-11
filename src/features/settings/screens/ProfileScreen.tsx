@@ -13,7 +13,7 @@ import { useStripe } from '@stripe/stripe-react-native';
 
 export function ProfileScreen() {
   const { t } = useTranslation();
-  const { user, logout, updateUser, isOfflineMode } = useAuthStore();
+  const { user, logout, updateUser, isOffline } = useAuthStore();
   const { colors } = useThemeStore();
 
   const [name, setName] = useState(user?.name || '');
@@ -101,7 +101,7 @@ export function ProfileScreen() {
     if (!name.trim()) return;
     setSavingProfile(true);
     try {
-      if (isOfflineMode) {
+      if (isOffline) {
         updateUser({ name, photo_url: photoUrl });
         Alert.alert('Success', 'Profile updated locally');
       } else {

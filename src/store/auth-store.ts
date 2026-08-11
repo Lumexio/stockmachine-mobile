@@ -8,6 +8,8 @@ const BASE_URL =
 
 const HAS_SEEN_WELCOME_KEY = 'sm_has_seen_welcome';
 const IS_OFFLINE_KEY = 'sm_is_offline';
+const LOCAL_LOCATIONS_KEY = 'sm_local_locations';
+const CURRENT_LOC_ID_KEY = 'sm_current_loc_id';
 
 export interface AuthUser {
   id: number;
@@ -74,14 +76,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   currentLocationId: null,
   locations: [],
 
-  setCurrentLocationId: (id) => set({ currentLocationId: id }),
+  setCurrentLocationId: (id) => {
+    if (id !== null) {
+      AsyncStorage.setItem(CURRENT_LOC_ID_KEY, String(id)).catch(() => null);
+    } else {
+      AsyncStorage.removeItem(CURRENT_LOC_ID_KEY).catch(() => null);
+    }
+    set({ currentLocationId: id });
+  },
 
   addLocalLocation: (name) => {
-    const newLoc = { id: Date.now() * -1, name };
-    set((state) => ({
-      locations: [...state.locations, newLoc],
-      currentLocationId: newLoc.id
-    }));
+    const newLoc = { id: Date.now() * -1, name, org_id: 0 };
+    set((state) => {
+      const newLocations = [...state.locations, newLoc];
+      AsyncStorage.setItem(LOCAL_LOCATIONS_KEY, JSON.stringify(newLocations)).catch(() => null);
+      AsyncStorage.setItem(CURRENT_LOC_ID_KEY, String(newLoc.id)).catch(() => null);
+      return {
+        locations: newLocations,
+        currentLocationId: newLoc.id
+      };
+    });
   },
 
   fetchLocations: async (tokenParam) => {
@@ -188,6 +202,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } finally {
       await clearTokens();
       await AsyncStorage.setItem(IS_OFFLINE_KEY, 'false');
+      await AsyncStorage.removeItem(LOCAL_LOCATIONS_KEY);
+      await AsyncStorage.removeItem(CURRENT_LOC_ID_KEY);
       set({ user: null, isAuthenticated: false, isOffline: false, currentLocationId: null, locations: [] });
     }
   },
@@ -209,9 +225,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       const seen = await AsyncStorage.getItem(HAS_SEEN_WELCOME_KEY);
       const offline = await AsyncStorage.getItem(IS_OFFLINE_KEY);
       
+      const localLocsRaw = await AsyncStorage.getItem(LOCAL_LOCATIONS_KEY);
+      const localLocs = localLocsRaw ? JSON.parse(localLocsRaw) : [];
+      const currentLocIdRaw = await AsyncStorage.getItem(CURRENT_LOC_ID_KEY);
+      const currentLocId = currentLocIdRaw ? Number(currentLocIdRaw) : null;
+      
       set({
         hasSeenWelcome: seen === 'true',
         isOffline: offline === 'true',
+        locations: localLocs,
+        currentLocationId: currentLocId,
       });
     } catch {
       // ignore preferences load failures

@@ -88,6 +88,7 @@ async function fetchWithInterceptor(url: string, options: RequestInit = {}, retr
 }
 
 export const apiClient = {
+  defaults: { baseURL: BASE_URL },
   get: (url: string, config?: any) => fetchWithInterceptor(url, { method: 'GET', ...config }),
   post: (url: string, data?: any, config?: any) => fetchWithInterceptor(url, { method: 'POST', body: JSON.stringify(data), ...config }),
   put: (url: string, data?: any, config?: any) => fetchWithInterceptor(url, { method: 'PUT', body: JSON.stringify(data), ...config }),
