@@ -25,7 +25,14 @@ export function ProductListScreen({ navigation }: Props) {
   const { colors } = useThemeStore();
   const { products, loading, fetchAll } = useProductsStore();
   const currentLocationId = useAuthStore(s => s.currentLocationId);
+  const user = useAuthStore(s => s.user);
   const [search, setSearch] = useState('');
+
+  const currentPlan = user?.organization?.plan_id || 'free';
+  const itemsLimitReached = 
+    (currentPlan === 'free' && products.length >= 50) ||
+    (currentPlan === 'pro' && products.length >= 150) ||
+    (currentPlan === 'max' && products.length >= 500);
 
   useEffect(() => {
     fetchAll();
@@ -92,9 +99,13 @@ export function ProductListScreen({ navigation }: Props) {
             import('react-native').then(rn => rn.Alert.alert('Error', t('messages.error.noLocation') || 'Please create or select a location first.'));
             return;
           }
+          if (itemsLimitReached) {
+            import('react-native').then(rn => rn.Alert.alert('Plan Limit Reached', 'You have reached the maximum number of products for your current plan. Please upgrade to add more.'));
+            return;
+          }
           navigation.navigate(NAV_KEYS.PRODUCT_FORM, {})
         }}
-        className="absolute bottom-6 right-6 bg-red-600 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+        className={`absolute bottom-6 right-6 w-14 h-14 rounded-full items-center justify-center shadow-lg ${itemsLimitReached ? 'bg-gray-400' : 'bg-red-600'}`}
         testID="add-product-button"
       >
         <Text
