@@ -135,11 +135,11 @@ export function ProductFormScreen({ route, navigation }: Props) {
         cost_price: parseFloat(costPrice) || 0,
         selling_price: parseFloat(sellingPrice) || 0,
         min_stock: parseInt(minStock, 10) || 10,
-        ...(categoryId !== undefined && { category_id: categoryId }),
-        ...(shelveId !== undefined && { shelve_id: shelveId }),
-        ...(rackId !== undefined && { rack_id: rackId }),
-        ...(supplierId !== undefined && { supplier_id: supplierId }),
-        ...(statusId !== undefined && { status_id: statusId }),
+        ...(categoryId ? { category_id: Number(categoryId) } : {}),
+        ...(shelveId ? { shelve_id: Number(shelveId) } : {}),
+        ...(rackId ? { rack_id: Number(rackId) } : {}),
+        ...(supplierId ? { supplier_id: Number(supplierId) } : {}),
+        ...(statusId ? { status_id: Number(statusId) } : {}),
       };
       if (isEdit && id !== undefined) {
         await update(id, dto);
