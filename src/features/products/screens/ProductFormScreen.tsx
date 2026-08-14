@@ -122,7 +122,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      setFormError(t('forms.validation.required'));
+      setFormError(`${t('forms.validation.required')} ${t('forms.label.products.name')}`);
       return;
     }
     setFormError('');
@@ -172,14 +172,15 @@ export function ProductFormScreen({ route, navigation }: Props) {
     color: selected ? 'white' : colors.text
   });
 
+  const getPlaceholder = (placeholderKey: string, fallbackLabel: string) => {
+    const translated = t(placeholderKey);
+    return translated !== placeholderKey ? translated : fallbackLabel;
+  };
+
   return (
-    <ScrollView className="flex-1" style={{ backgroundColor: colors.background }}>
-        {!!formError && (
-          <View style={{ backgroundColor: `${colors.notification || '#B00020'}20`, padding: 12, borderRadius: 8, marginBottom: 16, marginTop: 16, marginHorizontal: 16 }}>
-            <Text style={{ color: colors.notification || '#B00020', fontSize: 14 }}>{formError}</Text>
-          </View>
-        )}
-      <View className="p-4" style={{ gap: 16 }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView className="flex-1">
+        <View className="p-4" style={{ gap: 16 }}>
         <View>
           <Text className="text-sm mb-1" style={{ color: colors.text }}>
             {t('forms.label.products.name')}
@@ -190,7 +191,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
             placeholderTextColor={colors.textSecondary}
             value={name}
             onChangeText={setName}
-            placeholder={t('forms.placeholders.name')}
+            placeholder={getPlaceholder('forms.placeholders.name', t('forms.label.products.name'))}
             testID="name-input"
           />
         </View>
@@ -205,7 +206,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
             placeholderTextColor={colors.textSecondary}
             value={description}
             onChangeText={setDescription}
-            placeholder={t('forms.placeholders.description', 'Product Description')}
+            placeholder={getPlaceholder('forms.placeholders.description', t('forms.label.products.description', 'Description'))}
             testID="description-input"
           />
         </View>
@@ -221,7 +222,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
             value={quantity}
             onChangeText={setQuantity}
             keyboardType="numeric"
-            placeholder={t('forms.placeholders.quantity')}
+            placeholder={getPlaceholder('forms.placeholders.quantity', t('forms.label.products.quantity'))}
             testID="quantity-input"
           />
         </View>
@@ -237,7 +238,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
             value={costPrice}
             onChangeText={setCostPrice}
             keyboardType="numeric"
-            placeholder="0.00"
+            placeholder={getPlaceholder('forms.placeholders.cost_price', '0.00')}
             testID="cost-price-input"
           />
         </View>
@@ -253,7 +254,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
             value={sellingPrice}
             onChangeText={setSellingPrice}
             keyboardType="numeric"
-            placeholder="0.00"
+            placeholder={getPlaceholder('forms.placeholders.selling_price', '0.00')}
             testID="selling-price-input"
           />
         </View>
@@ -269,7 +270,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
             value={minStock}
             onChangeText={setMinStock}
             keyboardType="numeric"
-            placeholder="10"
+            placeholder={getPlaceholder('forms.placeholders.min_stock', '10')}
             testID="min-stock-input"
           />
         </View>
@@ -394,6 +395,16 @@ export function ProductFormScreen({ route, navigation }: Props) {
           )}
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </ScrollView>
+
+      {!!formError && (
+        <View style={{ position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: '#333333', padding: 16, borderRadius: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5 }}>
+          <Text style={{ color: 'white', flex: 1, marginRight: 8 }}>{formError}</Text>
+          <TouchableOpacity onPress={() => setFormError('')}>
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>✕</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 }
