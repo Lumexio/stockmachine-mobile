@@ -40,7 +40,7 @@ export function LocationPicker() {
     setLocationError('');
     try {
       if (isOffline) {
-        addLocalLocation(newLocationName.trim());
+        await addLocalLocation(newLocationName.trim());
       } else {
         await apiClient.post(`/organizations/${user?.org_id}/locations`, { name: newLocationName.trim() });
         await fetchLocations();

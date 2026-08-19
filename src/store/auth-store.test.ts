@@ -208,8 +208,8 @@ describe('Auth Store (useAuthStore)', () => {
       expect(AsyncStorage.setItem).toHaveBeenCalledWith('sm_has_seen_welcome', 'true');
     });
 
-    test('addLocalLocation generates negative ID and updates state & storage', () => {
-      useAuthStore.getState().addLocalLocation('Warehouse 1');
+    test('addLocalLocation generates negative ID and updates state & storage', async () => {
+      await useAuthStore.getState().addLocalLocation('Warehouse 1');
 
       const state = useAuthStore.getState();
       expect(state.locations.length).toBe(1);

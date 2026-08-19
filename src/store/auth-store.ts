@@ -54,7 +54,7 @@ interface AuthState {
   updateUser: (updates: Partial<AuthUser>) => void;
   setCurrentLocationId: (id: number | null) => void;
   fetchLocations: (token?: string) => Promise<void>;
-  addLocalLocation: (name: string) => void;
+  addLocalLocation: (name: string) => Promise<void>;
 }
 
 const storeTokens = async (accessToken: string, refreshToken: string) => {
@@ -85,16 +85,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ currentLocationId: id });
   },
 
-  addLocalLocation: (name) => {
+  addLocalLocation: async (name) => {
     const newLoc = { id: Date.now() * -1, name, org_id: 0 };
-    set((state) => {
-      const newLocations = [...state.locations, newLoc];
-      AsyncStorage.setItem(LOCAL_LOCATIONS_KEY, JSON.stringify(newLocations)).catch(() => null);
-      AsyncStorage.setItem(CURRENT_LOC_ID_KEY, String(newLoc.id)).catch(() => null);
-      return {
-        locations: newLocations,
-        currentLocationId: newLoc.id
-      };
+    const state = get();
+    const newLocations = [...state.locations, newLoc];
+    await AsyncStorage.setItem(LOCAL_LOCATIONS_KEY, JSON.stringify(newLocations)).catch(() => null);
+    await AsyncStorage.setItem(CURRENT_LOC_ID_KEY, String(newLoc.id)).catch(() => null);
+    set({
+      locations: newLocations,
+      currentLocationId: newLoc.id
     });
   },
 
