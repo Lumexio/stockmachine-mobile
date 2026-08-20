@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { NAV_KEYS } from '@constants/nav-keys';
 import { ShelfListScreen } from './screens/ShelfListScreen';
 import { ShelfFormScreen } from './screens/ShelfFormScreen';
+import { HeaderRight } from '../../components/HeaderRight';
 import type { ShelvesStackParamList } from './types';
 
 export type { ShelvesStackParamList } from './types';
@@ -13,7 +14,7 @@ const Stack = createNativeStackNavigator<ShelvesStackParamList>();
 export function ShelvesNavigator() {
   const { t } = useTranslation();
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerRight: () => <HeaderRight /> }}>
       <Stack.Screen
         name={NAV_KEYS.SHELF_LIST}
         component={ShelfListScreen}

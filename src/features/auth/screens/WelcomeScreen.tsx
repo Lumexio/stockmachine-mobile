@@ -54,7 +54,7 @@ export function WelcomeScreen({ navigation }: Props) {
           {/* Log In */}
           <TouchableOpacity
             onPress={handleLogin}
-            className="bg-red-600 rounded-xl py-4 flex-row justify-center items-center shadow-sm"
+            className="bg-red-600 rounded-3xl py-4 flex-row justify-center items-center "
             testID="welcome-login-btn"
           >
             <MaterialCommunityIcons
@@ -71,7 +71,7 @@ export function WelcomeScreen({ navigation }: Props) {
           {/* Register Online */}
           <TouchableOpacity
             onPress={handleRegister}
-            className="border border-red-600 rounded-xl py-4 flex-row justify-center items-center"
+            className="border border-red-600 rounded-3xl py-4 flex-row justify-center items-center"
             testID="welcome-register-btn"
           >
             <MaterialCommunityIcons
@@ -88,7 +88,7 @@ export function WelcomeScreen({ navigation }: Props) {
           {/* Continue Offline */}
           <TouchableOpacity
             onPress={handleOffline}
-            className="rounded-xl py-4 flex-row justify-center items-center"
+            className="rounded-3xl py-4 flex-row justify-center items-center"
             testID="welcome-offline-btn"
           >
             <MaterialCommunityIcons

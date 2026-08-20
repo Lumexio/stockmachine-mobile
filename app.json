@@ -2,7 +2,7 @@
   "expo": {
     "name": "stockmachine-mobile",
     "slug": "stockmachine-mobile",
-    "version": "1.0.0",
+    "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -18,13 +18,33 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "REQUEST_INSTALL_PACKAGES"
+      ],
+      "versionCode": 88
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "apiUrl": "http://localhost:3000/api/v1"
-    }
+    },
+    "plugins": [
+      "./plugins/withAbiSplits.js",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraParams": [
+              {
+                "key": "org.gradle.jvmargs",
+                "value": "-Xmx4096m -XX:MaxMetaspaceSize=512m"
+              }
+            ]
+          }
+        }
+      ]
+    ]
   }
 }

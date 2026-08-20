@@ -1,8 +1,9 @@
 import React from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useTranslation } from 'react-i18next';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { NAV_KEYS } from '@constants/nav-keys';
 import { useThemeStore } from '@store/theme-store';
 import { Colors } from '@constants/theme';
@@ -14,9 +15,13 @@ import { ProductsNavigator } from '@features/products';
 import { CategoriesNavigator } from '@features/categories';
 import { ShelvesNavigator } from '@features/shelves';
 import { RacksNavigator } from '@features/racks';
+import { SuppliersNavigator } from '@features/suppliers';
 import { HistoryScreen } from '@features/history';
-import { SettingsScreen } from '@features/settings';
+import { SettingsScreen, ProfileScreen, MenuScreen } from '@features/settings/screens';
 import { useAuthStore } from '@store/auth-store';
+
+import { HeaderRight } from '../components/HeaderRight';
+import { OnboardingConfigModal } from '../components/OnboardingConfigModal';
 
 // ── Auth navigator ────────────────────────────────────────────────────────────
 export type AuthStackParamList = {
@@ -47,8 +52,8 @@ export type MainTabsParamList = {
   [NAV_KEYS.CATEGORIES_STACK]: undefined;
   [NAV_KEYS.SHELVES_STACK]: undefined;
   [NAV_KEYS.RACKS_STACK]: undefined;
-  [NAV_KEYS.HISTORY]: undefined;
-  [NAV_KEYS.SETTINGS]: undefined;
+  [NAV_KEYS.SUPPLIERS_STACK]: undefined;
+  [NAV_KEYS.MENU]: undefined;
 };
 const MainTabs = createBottomTabNavigator<MainTabsParamList>();
 
@@ -63,31 +68,71 @@ function MainNavigator() {
         tabBarStyle: { backgroundColor: colors.card },
         headerStyle: { backgroundColor: colors.card },
         headerTintColor: colors.text,
+        headerRight: () => <HeaderRight />,
       }}
     >
-      <MainTabs.Screen name={NAV_KEYS.DASHBOARD} component={DashboardScreen} />
+      <MainTabs.Screen
+        name={NAV_KEYS.DASHBOARD}
+        component={DashboardScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="view-dashboard" size={size} color={color} />,
+        }}
+      />
       <MainTabs.Screen
         name={NAV_KEYS.PRODUCTS_STACK}
         component={ProductsNavigator}
-        options={{ title: 'Products' }}
+        options={{
+          title: 'Products',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="package-variant" size={size} color={color} />,
+        }}
       />
       <MainTabs.Screen
         name={NAV_KEYS.CATEGORIES_STACK}
         component={CategoriesNavigator}
-        options={{ title: 'Categories' }}
+        options={{
+          title: 'Categories',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="shape" size={size} color={color} />,
+        }}
       />
       <MainTabs.Screen
         name={NAV_KEYS.SHELVES_STACK}
         component={ShelvesNavigator}
-        options={{ title: 'Shelves' }}
+        options={{
+          title: 'Shelves',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="bookshelf" size={size} color={color} />,
+        }}
       />
       <MainTabs.Screen
         name={NAV_KEYS.RACKS_STACK}
         component={RacksNavigator}
-        options={{ title: 'Racks' }}
+        options={{
+          title: 'Racks',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="server" size={size} color={color} />,
+        }}
       />
-      <MainTabs.Screen name={NAV_KEYS.HISTORY} component={HistoryScreen} />
-      <MainTabs.Screen name={NAV_KEYS.SETTINGS} component={SettingsScreen} />
+      <MainTabs.Screen
+        name={NAV_KEYS.SUPPLIERS_STACK}
+        component={SuppliersNavigator}
+        options={{
+          title: 'Suppliers',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="account-group" size={size} color={color} />,
+        }}
+      />
+      <MainTabs.Screen
+        name={NAV_KEYS.MENU}
+        component={MenuScreen}
+        options={{
+          title: 'Menu',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="menu" size={size} color={color} />
+          ),
+        }}
+      />
     </MainTabs.Navigator>
   );
 }
@@ -96,6 +141,9 @@ function MainNavigator() {
 export type RootStackParamList = {
   [NAV_KEYS.AUTH_STACK]: undefined;
   [NAV_KEYS.MAIN_TABS]: undefined;
+  [NAV_KEYS.HISTORY]: undefined;
+  [NAV_KEYS.PROFILE]: undefined;
+  [NAV_KEYS.SETTINGS]: undefined;
 };
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
@@ -110,7 +158,7 @@ export function AppNavigator({ isAuthenticated, isOffline }: AppNavigatorProps) 
   return (
     <NavigationContainer
       theme={{
-        dark: useThemeStore.getState().scheme === 'dark',
+        dark: useThemeStore.getState().isDarkActive,
         colors: {
           primary: Colors.primary,
           background: colors.background,
@@ -129,10 +177,27 @@ export function AppNavigator({ isAuthenticated, isOffline }: AppNavigatorProps) 
     >
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
         {isAuthenticated || isOffline ? (
-          <RootStack.Screen
-            name={NAV_KEYS.MAIN_TABS}
-            component={MainNavigator}
-          />
+          <RootStack.Group>
+            <RootStack.Screen
+              name={NAV_KEYS.MAIN_TABS}
+              component={MainNavigator}
+            />
+            <RootStack.Screen
+              name={NAV_KEYS.HISTORY}
+              component={HistoryScreen}
+              options={{ headerShown: true, title: 'History' }}
+            />
+            <RootStack.Screen
+              name={NAV_KEYS.PROFILE}
+              component={ProfileScreen}
+              options={{ headerShown: true, title: 'Profile' }}
+            />
+            <RootStack.Screen
+              name={NAV_KEYS.SETTINGS}
+              component={SettingsScreen}
+              options={{ headerShown: true, title: 'Settings' }}
+            />
+          </RootStack.Group>
         ) : (
           <RootStack.Screen
             name={NAV_KEYS.AUTH_STACK}
@@ -140,6 +205,7 @@ export function AppNavigator({ isAuthenticated, isOffline }: AppNavigatorProps) 
           />
         )}
       </RootStack.Navigator>
+      <OnboardingConfigModal />
     </NavigationContainer>
   );
 }

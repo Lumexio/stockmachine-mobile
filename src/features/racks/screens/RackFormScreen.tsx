@@ -10,7 +10,11 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Picker } from '@react-native-picker/picker';
+import { useThemeStore } from '@store/theme-store';
+import { Colors } from '@constants/theme';
 import { useRacksStore } from '../store/racks-store';
+import { useShelvesStore } from '../../shelves/store/shelves-store';
 import { apiClient } from '@api/axios-client';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { RacksStackParamList } from '../types';
@@ -27,6 +31,7 @@ interface SelectOption {
 
 export function RackFormScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
+  const { colors } = useThemeStore();
   const { id } = route.params;
   const isEdit = id !== undefined;
   const { selectedRack, create, update, fetchById } = useRacksStore();
@@ -34,6 +39,7 @@ export function RackFormScreen({ route, navigation }: Props) {
   const [name, setName] = useState('');
   const [shelveId, setShelveId] = useState<number | undefined>();
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState('');
   const [shelves, setShelves] = useState<SelectOption[]>([]);
 
   useEffect(() => {
@@ -56,9 +62,10 @@ export function RackFormScreen({ route, navigation }: Props) {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('', t('forms.validation.required'));
+      setFormError(t('forms.validation.required'));
       return;
     }
+    setFormError('');
     setSaving(true);
     try {
       const dto = {
@@ -71,8 +78,9 @@ export function RackFormScreen({ route, navigation }: Props) {
         await create(dto);
       }
       navigation.goBack();
-    } catch {
-      Alert.alert('', t('messages.error.create'));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || t('messages.error.create');
+      setFormError(msg);
     } finally {
       setSaving(false);
     }
@@ -80,20 +88,33 @@ export function RackFormScreen({ route, navigation }: Props) {
 
   const chipCls = (selected: boolean) =>
     `mr-2 px-3 py-2 rounded-full border ${
-      selected ? 'bg-red-600 border-red-600' : 'border-gray-300 bg-white'
+      selected ? '' : 'border-gray-300'
     }`;
+    
+  const chipStyles = (selected: boolean) => ({
+    backgroundColor: selected ? Colors.primary : colors.surface,
+    borderColor: selected ? Colors.primary : colors.border,
+  });
+
   const chipTextCls = (selected: boolean) =>
-    `text-sm ${selected ? 'text-white' : 'text-gray-700'}`;
+    `text-sm ${selected ? 'text-white' : ''}`;
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1" style={{ backgroundColor: colors.background }}>
+        {!!formError && (
+          <View style={{ backgroundColor: `${colors.notification || '#B00020'}20`, padding: 12, borderRadius: 8, marginBottom: 16, marginTop: 16, marginHorizontal: 16 }}>
+            <Text style={{ color: colors.notification || '#B00020', fontSize: 14 }}>{formError}</Text>
+          </View>
+        )}
       <View className="p-4" style={{ gap: 16 }}>
         <View>
-          <Text className="text-sm text-gray-600 mb-1">
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
             {t('forms.label.racks.name')}
           </Text>
           <TextInput
-            className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-gray-900"
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
             value={name}
             onChangeText={setName}
             placeholder={t('forms.placeholders.name')}
@@ -127,7 +148,7 @@ export function RackFormScreen({ route, navigation }: Props) {
         <TouchableOpacity
           onPress={handleSave}
           disabled={saving}
-          className="bg-red-600 rounded-xl py-4 items-center mt-2"
+          className="bg-red-600 rounded-3xl py-4 items-center mt-2"
           testID="save-button"
         >
           {saving ? (

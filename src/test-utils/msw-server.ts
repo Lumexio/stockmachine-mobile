@@ -1,4 +1,4 @@
-import { setupServer } from 'msw/node';
+import { setupServer } from './msw-shim';
 
 /**
  * Global MSW server for API mocking in tests.

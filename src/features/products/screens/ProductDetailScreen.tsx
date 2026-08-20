@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useThemeStore } from '@store/theme-store';
 import { useProductsStore } from '../store/products-store';
 import { StockActionSheet, StockAction } from '../components/StockActionSheet';
 import { NAV_KEYS } from '@constants/nav-keys';
@@ -23,6 +24,7 @@ type Props = NativeStackScreenProps<
 
 export function ProductDetailScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
+  const { colors } = useThemeStore();
   const { id } = route.params;
   const { selectedProduct, loading, fetchById, entry, withdrawal, remove } =
     useProductsStore();
@@ -60,7 +62,7 @@ export function ProductDetailScreen({ route, navigation }: Props) {
 
   if (loading || selectedProduct === null || selectedProduct.id !== id) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50">
+      <View className="flex-1 items-center justify-center" style={{ backgroundColor: colors.background }}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
@@ -68,21 +70,22 @@ export function ProductDetailScreen({ route, navigation }: Props) {
 
   return (
     <ScrollView
-      className="flex-1 bg-gray-50"
+      className="flex-1"
+      style={{ backgroundColor: colors.background }}
       refreshControl={
         <RefreshControl refreshing={loading} onRefresh={loadProduct} />
       }
     >
       <View className="p-4">
-        <View className="bg-white rounded-xl p-5 mb-4 shadow-sm">
-          <Text className="text-xl font-bold text-gray-900 mb-1">
+        <View className="rounded-3xl p-5 mb-4 " style={{ backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }}>
+          <Text className="text-xl font-bold mb-1" style={{ color: colors.text }}>
             {selectedProduct.name}
           </Text>
           <View className="flex-row items-baseline mt-2">
             <Text className="text-4xl font-bold text-red-600">
               {selectedProduct.quantity}
             </Text>
-            <Text className="text-gray-500 ml-2 text-sm">
+            <Text className="ml-2 text-sm" style={{ color: colors.textSecondary }}>
               {t('common.quantity')}
             </Text>
           </View>
@@ -91,7 +94,7 @@ export function ProductDetailScreen({ route, navigation }: Props) {
         <View className="flex-row mb-4" style={{ gap: 12 }}>
           <TouchableOpacity
             onPress={() => setSheetAction('entry')}
-            className="flex-1 bg-green-600 rounded-xl py-4 items-center"
+            className="flex-1 bg-green-600 rounded-3xl py-4 items-center"
             testID="entry-button"
           >
             <Text className="text-white font-semibold">
@@ -100,7 +103,7 @@ export function ProductDetailScreen({ route, navigation }: Props) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setSheetAction('withdrawal')}
-            className="flex-1 bg-orange-500 rounded-xl py-4 items-center"
+            className="flex-1 bg-orange-500 rounded-3xl py-4 items-center"
             testID="withdrawal-button"
           >
             <Text className="text-white font-semibold">
@@ -116,7 +119,7 @@ export function ProductDetailScreen({ route, navigation }: Props) {
                 id: selectedProduct.id,
               })
             }
-            className="flex-1 border border-red-600 rounded-xl py-3 items-center"
+            className="flex-1 border border-red-600 rounded-3xl py-3 items-center"
             testID="edit-button"
           >
             <Text className="text-red-600 font-medium">
@@ -125,7 +128,7 @@ export function ProductDetailScreen({ route, navigation }: Props) {
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleDelete}
-            className="flex-1 border border-red-600 rounded-xl py-3 items-center"
+            className="flex-1 border border-red-600 rounded-3xl py-3 items-center"
             testID="delete-button"
           >
             <Text className="text-red-600 font-medium">

@@ -8,34 +8,94 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
+  Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { AuthStackParamList } from '@navigation/AppNavigator';
 import { useAuthStore } from '@store/auth-store';
+import { useSyncStore } from '@store/sync-store';
 import { NAV_KEYS } from '@constants/nav-keys';
+import { apiClient } from '@api/axios-client';
+import * as FileSystem from 'expo-file-system';
 
 type Props = NativeStackScreenProps<AuthStackParamList, typeof NAV_KEYS.LOGIN>;
 
 export function LoginScreen({ navigation }: Props) {
   const { t } = useTranslation();
   const login = useAuthStore((s) => s.login);
+  const setPendingInviteCode = useAuthStore((s) => s.setPendingInviteCode);
+  const pendingInviteCode = useAuthStore((s) => s.pendingInviteCode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+  const [inviteCodeInput, setInviteCodeInput] = useState('');
+  const [verifyingInvite, setVerifyingInvite] = useState(false);
+  const [inviteMsg, setInviteMsg] = useState('');
+
+  const [conflictModalVisible, setConflictModalVisible] = useState(false);
+  const [exportingBackup, setExportingBackup] = useState(false);
+
+  const handleVerifyInvite = async () => {
+    if (!inviteCodeInput) return;
+    setVerifyingInvite(true);
+    try {
+      const res = await apiClient.get(`/invitations/${inviteCodeInput}`);
+      if (res.data?.data?.organization_name) {
+        setPendingInviteCode(inviteCodeInput);
+        setInviteMsg(`Invited to ${res.data.data.organization_name}!`);
+        if (res.data.data.email) {
+          setEmail(res.data.data.email);
+        }
+        setTimeout(() => setInviteModalVisible(false), 2000);
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e?.response?.data?.message || 'Invalid invite code');
+    } finally {
+      setVerifyingInvite(false);
+    }
+  };
+
   const handleLogin = async () => {
     setError(null);
+    const syncQueue = useSyncStore.getState().queue;
+    if (syncQueue && syncQueue.length > 0) {
+      setConflictModalVisible(true);
+      return;
+    }
+    proceedWithLogin();
+  };
+
+  const proceedWithLogin = async () => {
+    setConflictModalVisible(false);
     setLoading(true);
     try {
+      useSyncStore.setState({ queue: [] });
       await login(email, password);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t('auth.invalidCredentials'),
-      );
+      setError(err instanceof Error ? err.message : t('auth.invalidCredentials'));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const exportBackup = async () => {
+    setExportingBackup(true);
+    try {
+      const syncQueue = useSyncStore.getState().queue;
+      // ponytail: Exporting as JSON to documentDirectory without OS share sheet. Upgrade path: install expo-sharing and xlsx for proper Excel backups.
+      // @ts-ignore
+      const fileUri = `${FileSystem.documentDirectory}offline_backup.json`;
+      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(syncQueue));
+      Alert.alert('Exported', `Backup saved to ${fileUri}`);
+    } catch (e) {
+      Alert.alert('Error', 'Failed to export backup');
+    } finally {
+      setExportingBackup(false);
     }
   };
 
@@ -59,9 +119,10 @@ export function LoginScreen({ navigation }: Props) {
             </View>
           )}
 
+          <Text className="text-sm mb-1 font-medium text-gray-700">{t('forms.label.email', 'Email Address')}</Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-4 text-gray-900"
-            placeholder={t('auth.email')}
+            placeholder="you@example.com"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -70,9 +131,10 @@ export function LoginScreen({ navigation }: Props) {
             testID="email-input"
           />
 
+          <Text className="text-sm mb-1 font-medium text-gray-700">{t('forms.label.password', 'Password')}</Text>
           <TextInput
             className="border border-gray-300 rounded-lg px-4 py-3 mb-2 text-gray-900"
-            placeholder={t('auth.password')}
+            placeholder="********"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -100,13 +162,78 @@ export function LoginScreen({ navigation }: Props) {
 
           <TouchableOpacity
             onPress={() => navigation.navigate(NAV_KEYS.REGISTER)}
+            className="mb-4"
           >
             <Text className="text-center text-red-600">
               {t('auth.noAccount')}
             </Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => useAuthStore.getState().setOffline(true)}
+            className="mb-2"
+          >
+            <Text className="text-center text-gray-500 font-bold">
+              Cancel / Stay Offline
+            </Text>
+          </TouchableOpacity>
+
+          <View className="h-[1px] bg-gray-200 my-4" />
+
+          <TouchableOpacity
+            onPress={() => setInviteModalVisible(true)}
+          >
+            <Text className="text-center text-gray-500 font-bold">
+              Got an invite code?
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
+
+      <Modal visible={inviteModalVisible} transparent animationType="slide">
+        <View className="flex-1 justify-end bg-black/50">
+          <View className="bg-white rounded-t-3xl p-6 shadow-lg">
+            <Text className="text-xl font-bold mb-2">Accept Invitation</Text>
+            <Text className="text-gray-500 mb-4">Enter your 6-character code.</Text>
+            <TextInput
+              className="border border-gray-300 rounded-lg px-4 py-3 mb-2 text-gray-900"
+              placeholder="Invite Code"
+              value={inviteCodeInput}
+              onChangeText={setInviteCodeInput}
+              autoCapitalize="characters"
+            />
+            {!!inviteMsg && <Text className="text-green-600 mb-4 font-bold">{inviteMsg}</Text>}
+            <View className="flex-row justify-end space-x-2 mt-2">
+              <TouchableOpacity onPress={() => setInviteModalVisible(false)} className="px-4 py-2">
+                <Text className="text-gray-500 font-bold">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleVerifyInvite} disabled={verifyingInvite} className="bg-red-600 px-6 py-2 rounded-lg">
+                <Text className="text-white font-bold">{verifyingInvite ? '...' : 'Verify'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={conflictModalVisible} transparent animationType="fade">
+        <View className="flex-1 justify-center bg-black/50 p-6">
+          <View className="bg-white rounded-2xl p-6 shadow-lg">
+            <Text className="text-xl font-bold text-red-600 mb-2">Unsaved Offline Data</Text>
+            <Text className="text-gray-700 mb-4">Logging in will overwrite your local offline data. Export a JSON backup first?</Text>
+            <View className="flex-col gap-2 mt-2">
+              <TouchableOpacity onPress={exportBackup} disabled={exportingBackup} className="bg-green-600 py-3 rounded-lg items-center">
+                <Text className="text-white font-bold">{exportingBackup ? 'Exporting...' : 'Export Backup (.json)'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={proceedWithLogin} className="bg-red-50 border border-red-200 py-3 rounded-lg items-center mt-2">
+                <Text className="text-red-600 font-bold">Discard & Login</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setConflictModalVisible(false)} className="py-3 items-center mt-2">
+                <Text className="text-gray-500 font-bold">Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }

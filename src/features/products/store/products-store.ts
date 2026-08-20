@@ -70,6 +70,7 @@ export const useProductsStore = create<ProductsState>()(
         const newProduct: Product = {
           id: localId,
           name: dto.name,
+          description: dto.description ?? null,
           quantity: dto.quantity,
           category_id: dto.category_id ?? null,
           shelve_id: dto.shelve_id ?? null,

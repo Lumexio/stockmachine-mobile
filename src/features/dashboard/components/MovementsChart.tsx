@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { CartesianChart, Bar } from 'victory-native';
 import type { MovementData } from '../api/dashboard-api';
+import { useThemeStore } from '@store/theme-store';
 
 interface MovementsChartProps {
   data: MovementData[];
@@ -9,6 +10,7 @@ interface MovementsChartProps {
 }
 
 export function MovementsChart({ data, label }: MovementsChartProps) {
+  const { colors } = useThemeStore();
   const chartData = data.map((d) => ({
     day: new Date(d.date).getDate(),
     entries: d.entries,
@@ -17,7 +19,7 @@ export function MovementsChart({ data, label }: MovementsChartProps) {
 
   return (
     <View className="mx-4 mb-4">
-      <Text className="text-base font-semibold text-gray-800 mb-2">
+      <Text className="text-base font-semibold mb-2" style={{ color: colors.text }}>
         {label}
       </Text>
       <View style={{ height: 200 }}>

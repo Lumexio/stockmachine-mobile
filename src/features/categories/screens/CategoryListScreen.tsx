@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useThemeStore } from '@store/theme-store';
+import { useAuthStore } from '@store/auth-store';
 import { useCategoriesStore } from '../store/categories-store';
 import { NAV_KEYS } from '@constants/nav-keys';
 import type { CategoriesStackParamList } from '../types';
@@ -20,11 +22,13 @@ type Props = NativeStackScreenProps<
 
 export function CategoryListScreen({ navigation }: Props) {
   const { t } = useTranslation();
+  const { colors } = useThemeStore();
   const { categories, loading, fetchAll, remove } = useCategoriesStore();
+  const currentLocationId = useAuthStore(s => s.currentLocationId);
 
   useEffect(() => {
     fetchAll();
-  }, [fetchAll]);
+  }, [fetchAll, currentLocationId]);
 
   const onRefresh = useCallback(() => {
     fetchAll();
@@ -42,7 +46,7 @@ export function CategoryListScreen({ navigation }: Props) {
   };
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1" style={{ backgroundColor: colors.background }}>
       <FlatList
         data={categories}
         keyExtractor={(item) => item.id.toString()}
@@ -58,13 +62,13 @@ export function CategoryListScreen({ navigation }: Props) {
           ) : null
         }
         renderItem={({ item }) => (
-          <View className="bg-white rounded-xl p-4 mb-3 shadow-sm flex-row items-center">
+          <View className="rounded-3xl p-4 mb-3  flex-row items-center" style={{ backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }}>
             <View className="flex-1">
-              <Text className="text-base font-medium text-gray-900">
+              <Text className="text-base font-medium" style={{ color: colors.text }}>
                 {item.name}
               </Text>
               {item.description !== null && (
-                <Text className="text-sm text-gray-500 mt-1">
+                <Text className="text-sm mt-1" style={{ color: colors.textSecondary }}>
                   {item.description}
                 </Text>
               )}
@@ -94,7 +98,13 @@ export function CategoryListScreen({ navigation }: Props) {
       />
 
       <TouchableOpacity
-        onPress={() => navigation.navigate(NAV_KEYS.CATEGORY_FORM, {})}
+        onPress={() => {
+          if (!currentLocationId) {
+            import('react-native').then(rn => rn.Alert.alert('Error', t('messages.error.noLocation') || 'Please create or select a location first.'));
+            return;
+          }
+          navigation.navigate(NAV_KEYS.CATEGORY_FORM, {})
+        }}
         className="absolute bottom-6 right-6 bg-red-600 w-14 h-14 rounded-full items-center justify-center shadow-lg"
         testID="add-category-button"
       >

@@ -8,8 +8,11 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { useTranslation } from 'react-i18next';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useThemeStore } from '@store/theme-store';
+import { Colors } from '@constants/theme';
 import { useProductsStore } from '../store/products-store';
 import { apiClient } from '@api/axios-client';
 import { NAV_KEYS } from '@constants/nav-keys';
@@ -27,21 +30,29 @@ interface SelectOption {
 
 export function ProductFormScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
+  const { colors } = useThemeStore();
   const { id } = route.params;
   const isEdit = id !== undefined;
   const { selectedProduct, create, update, fetchById } = useProductsStore();
 
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('0');
+  const [costPrice, setCostPrice] = useState('0');
+  const [sellingPrice, setSellingPrice] = useState('0');
+  const [minStock, setMinStock] = useState('10');
   const [categoryId, setCategoryId] = useState<number | undefined>();
   const [shelveId, setShelveId] = useState<number | undefined>();
   const [rackId, setRackId] = useState<number | undefined>();
+  const [supplierId, setSupplierId] = useState<number | undefined>();
   const [statusId, setStatusId] = useState<number | undefined>();
   const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState('');
 
   const [categories, setCategories] = useState<SelectOption[]>([]);
   const [shelves, setShelves] = useState<SelectOption[]>([]);
   const [racks, setRacks] = useState<SelectOption[]>([]);
+  const [suppliers, setSuppliers] = useState<SelectOption[]>([]);
   const [statuses, setStatuses] = useState<SelectOption[]>([]);
 
   useEffect(() => {
@@ -56,13 +67,17 @@ export function ProductFormScreen({ route, navigation }: Props) {
         .get<{ data: SelectOption[] }>('/racks')
         .then((r) => r.data.data),
       apiClient
+        .get<{ data: SelectOption[] }>('/suppliers')
+        .then((r) => r.data.data),
+      apiClient
         .get<{ data: SelectOption[] }>('/status')
         .then((r) => r.data.data),
     ])
-      .then(([c, s, r, st]) => {
+      .then(([c, s, r, sup, st]) => {
         setCategories(c);
         setShelves(s);
         setRacks(r);
+        setSuppliers(sup);
         setStatuses(st);
       })
       .catch(() => null);
@@ -75,28 +90,56 @@ export function ProductFormScreen({ route, navigation }: Props) {
   useEffect(() => {
     if (isEdit && selectedProduct) {
       setName(selectedProduct.name);
+      setDescription(selectedProduct.description || '');
       setQuantity(selectedProduct.quantity.toString());
+      setCostPrice(selectedProduct.cost_price?.toString() || '0');
+      setSellingPrice(selectedProduct.selling_price?.toString() || '0');
+      setMinStock(selectedProduct.min_stock?.toString() || '10');
       setCategoryId(selectedProduct.category_id ?? undefined);
       setShelveId(selectedProduct.shelve_id ?? undefined);
       setRackId(selectedProduct.rack_id ?? undefined);
+      setSupplierId(selectedProduct.supplier_id ?? undefined);
       setStatusId(selectedProduct.status_id ?? undefined);
     }
   }, [isEdit, selectedProduct]);
 
+  // ponytail: Prevent accidental back swipe on long form
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      if (!name.trim() || saving) return;
+      e.preventDefault();
+      Alert.alert(
+        t('actions.discard'),
+        t('messages.confirm.discard'),
+        [
+          { text: t('actions.cancel'), style: 'cancel', onPress: () => {} },
+          { text: t('actions.discard'), style: 'destructive', onPress: () => navigation.dispatch(e.data.action) },
+        ]
+      );
+    });
+    return unsubscribe;
+  }, [navigation, name, saving, t]);
+
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert('', t('forms.validation.required'));
+      setFormError(`${t('forms.validation.required')} ${t('forms.label.products.name')}`);
       return;
     }
+    setFormError('');
     setSaving(true);
     try {
       const dto = {
         name: name.trim(),
+        description: description.trim(),
         quantity: parseInt(quantity, 10) || 0,
-        ...(categoryId !== undefined && { category_id: categoryId }),
-        ...(shelveId !== undefined && { shelve_id: shelveId }),
-        ...(rackId !== undefined && { rack_id: rackId }),
-        ...(statusId !== undefined && { status_id: statusId }),
+        cost_price: parseFloat(costPrice) || 0,
+        selling_price: parseFloat(sellingPrice) || 0,
+        min_stock: parseInt(minStock, 10) || 10,
+        ...(categoryId ? { category_id: Number(categoryId) } : {}),
+        ...(shelveId ? { shelve_id: Number(shelveId) } : {}),
+        ...(rackId ? { rack_id: Number(rackId) } : {}),
+        ...(supplierId ? { supplier_id: Number(supplierId) } : {}),
+        ...(statusId ? { status_id: Number(statusId) } : {}),
       };
       if (isEdit && id !== undefined) {
         await update(id, dto);
@@ -104,8 +147,9 @@ export function ProductFormScreen({ route, navigation }: Props) {
         await create(dto);
       }
       navigation.goBack();
-    } catch {
-      Alert.alert('', t('messages.error.create'));
+    } catch (error: any) {
+      const msg = error?.response?.data?.message || error?.message || t('messages.error.create');
+      setFormError(msg);
     } finally {
       setSaving(false);
     }
@@ -113,133 +157,233 @@ export function ProductFormScreen({ route, navigation }: Props) {
 
   const chipCls = (selected: boolean) =>
     `mr-2 px-3 py-2 rounded-full border ${
-      selected ? 'bg-red-600 border-red-600' : 'border-gray-300 bg-white'
+      selected ? '' : 'border-gray-300'
     }`;
+    
+  const chipStyles = (selected: boolean) => ({
+    backgroundColor: selected ? Colors.primary : colors.surface,
+    borderColor: selected ? Colors.primary : colors.border,
+  });
+
   const chipTextCls = (selected: boolean) =>
-    `text-sm ${selected ? 'text-white' : 'text-gray-700'}`;
+    `text-sm ${selected ? 'text-white' : ''}`;
+    
+  const chipTextStyles = (selected: boolean) => ({
+    color: selected ? 'white' : colors.text
+  });
+
+  const getPlaceholder = (placeholderKey: string, fallbackLabel: string) => {
+    const translated = t(placeholderKey);
+    return translated !== placeholderKey ? translated : fallbackLabel;
+  };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
-      <View className="p-4" style={{ gap: 16 }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView className="flex-1">
+        <View className="p-4" style={{ gap: 16 }}>
         <View>
-          <Text className="text-sm text-gray-600 mb-1">
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
             {t('forms.label.products.name')}
           </Text>
           <TextInput
-            className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-gray-900"
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
             value={name}
             onChangeText={setName}
-            placeholder={t('forms.placeholders.name')}
+            placeholder={getPlaceholder('forms.placeholders.name', t('forms.label.products.name'))}
             testID="name-input"
           />
         </View>
 
         <View>
-          <Text className="text-sm text-gray-600 mb-1">
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            {t('forms.label.products.description', 'Description')}
+          </Text>
+          <TextInput
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={description}
+            onChangeText={setDescription}
+            placeholder={getPlaceholder('forms.placeholders.description', t('forms.label.products.description', 'Description'))}
+            testID="description-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
             {t('forms.label.products.quantity')}
           </Text>
           <TextInput
-            className="border border-gray-300 rounded-lg px-4 py-3 bg-white text-gray-900"
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
             value={quantity}
             onChangeText={setQuantity}
             keyboardType="numeric"
-            placeholder={t('forms.placeholders.quantity')}
+            placeholder={getPlaceholder('forms.placeholders.quantity', t('forms.label.products.quantity'))}
             testID="quantity-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            {t('forms.label.products.cost_price')}
+          </Text>
+          <TextInput
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={costPrice}
+            onChangeText={setCostPrice}
+            keyboardType="numeric"
+            placeholder={getPlaceholder('forms.placeholders.cost_price', '0.00')}
+            testID="cost-price-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            {t('forms.label.products.selling_price')}
+          </Text>
+          <TextInput
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={sellingPrice}
+            onChangeText={setSellingPrice}
+            keyboardType="numeric"
+            placeholder={getPlaceholder('forms.placeholders.selling_price', '0.00')}
+            testID="selling-price-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            {t('forms.label.products.min_stock', 'Min Stock')}
+          </Text>
+          <TextInput
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={minStock}
+            onChangeText={setMinStock}
+            keyboardType="numeric"
+            placeholder={getPlaceholder('forms.placeholders.min_stock', '10')}
+            testID="min-stock-input"
           />
         </View>
 
         {categories.length > 0 && (
           <View>
-            <Text className="text-sm text-gray-600 mb-2">
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
               {t('forms.label.products.category_name')}
             </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {categories.map((c) => (
-                <TouchableOpacity
-                  key={c.id}
-                  onPress={() =>
-                    setCategoryId(c.id === categoryId ? undefined : c.id)
-                  }
-                  className={chipCls(c.id === categoryId)}
-                >
-                  <Text className={chipTextCls(c.id === categoryId)}>
-                    {c.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={categoryId}
+                onValueChange={(itemValue) => setCategoryId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectCategory', 'Select Category')} value={undefined} />
+                {categories.map((c) => (
+                  <Picker.Item key={c.id} label={c.name} value={c.id} />
+                ))}
+              </Picker>
+            </View>
           </View>
         )}
 
         {shelves.length > 0 && (
           <View>
-            <Text className="text-sm text-gray-600 mb-2">
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
               {t('forms.label.products.shelve_name')}
             </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {shelves.map((s) => (
-                <TouchableOpacity
-                  key={s.id}
-                  onPress={() =>
-                    setShelveId(s.id === shelveId ? undefined : s.id)
-                  }
-                  className={chipCls(s.id === shelveId)}
-                >
-                  <Text className={chipTextCls(s.id === shelveId)}>
-                    {s.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={shelveId}
+                onValueChange={(itemValue) => setShelveId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectShelve', 'Select Shelve')} value={undefined} />
+                {shelves.map((s) => (
+                  <Picker.Item key={s.id} label={s.name} value={s.id} />
+                ))}
+              </Picker>
+            </View>
           </View>
         )}
 
         {racks.length > 0 && (
           <View>
-            <Text className="text-sm text-gray-600 mb-2">
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
               {t('forms.label.products.rack_name')}
             </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {racks.map((r) => (
-                <TouchableOpacity
-                  key={r.id}
-                  onPress={() => setRackId(r.id === rackId ? undefined : r.id)}
-                  className={chipCls(r.id === rackId)}
-                >
-                  <Text className={chipTextCls(r.id === rackId)}>{r.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={rackId}
+                onValueChange={(itemValue) => setRackId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectRack', 'Select Rack')} value={undefined} />
+                {racks.map((r) => (
+                  <Picker.Item key={r.id} label={r.name} value={r.id} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        )}
+
+        {suppliers.length > 0 && (
+          <View>
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
+              {t('forms.label.products.supplier_name', 'Supplier')}
+            </Text>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={supplierId}
+                onValueChange={(itemValue) => setSupplierId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectSupplier', 'Select Supplier')} value={undefined} />
+                {suppliers.map((sup) => (
+                  <Picker.Item key={sup.id} label={sup.name} value={sup.id} />
+                ))}
+              </Picker>
+            </View>
           </View>
         )}
 
         {statuses.length > 0 && (
           <View>
-            <Text className="text-sm text-gray-600 mb-2">
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
               {t('forms.label.products.status')}
             </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {statuses.map((s) => (
-                <TouchableOpacity
-                  key={s.id}
-                  onPress={() =>
-                    setStatusId(s.id === statusId ? undefined : s.id)
-                  }
-                  className={chipCls(s.id === statusId)}
-                >
-                  <Text className={chipTextCls(s.id === statusId)}>
-                    {s.name}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={statusId}
+                onValueChange={(itemValue) => setStatusId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectStatus', 'Select Status')} value={undefined} />
+                {statuses.map((st) => (
+                  <Picker.Item key={st.id} label={st.name} value={st.id} />
+                ))}
+              </Picker>
+            </View>
           </View>
         )}
 
         <TouchableOpacity
           onPress={handleSave}
           disabled={saving}
-          className="bg-red-600 rounded-xl py-4 items-center mt-2"
+          className="bg-red-600 rounded-3xl py-4 items-center mt-2"
           testID="save-button"
         >
           {saving ? (
@@ -251,6 +395,16 @@ export function ProductFormScreen({ route, navigation }: Props) {
           )}
         </TouchableOpacity>
       </View>
-    </ScrollView>
+      </ScrollView>
+
+      {!!formError && (
+        <View style={{ position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: '#333333', padding: 16, borderRadius: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5 }}>
+          <Text style={{ color: 'white', flex: 1, marginRight: 8 }}>{formError}</Text>
+          <TouchableOpacity onPress={() => setFormError('')}>
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>✕</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 }
