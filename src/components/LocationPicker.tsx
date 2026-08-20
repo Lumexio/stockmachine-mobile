@@ -25,7 +25,7 @@ export function LocationPicker() {
     }
   }, [locations.length]);
 
-  const currentLoc = locations.find(l => l.id === currentLocationId);
+  const currentLoc = currentLocationId === 0 ? { id: 0, name: 'Global' } : locations.find(l => l.id === currentLocationId);
 
   const handleCreate = async () => {
     if (!newLocationName.trim()) return;
@@ -76,6 +76,14 @@ export function LocationPicker() {
             {!createMode ? (
               <>
                 <Text style={{ color: colors.text, fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}>Select Location</Text>
+                                <TouchableOpacity onPress={() => handleSelect(0)} style={{ paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.border, flexDirection: 'row', alignItems: 'center' }}>
+                  {currentLocationId === 0 ? (
+                     <MaterialCommunityIcons name="earth" size={22} color={Colors.primary} style={{ marginRight: 12 }} />
+                  ) : (
+                     <View style={{ width: 34 }} />
+                  )}
+                  <Text style={{ color: currentLocationId === 0 ? Colors.primary : colors.text, fontSize: 16, flex: 1, fontWeight: currentLocationId === 0 ? 'bold' : '500' }}>Global (All Locations)</Text>
+                </TouchableOpacity>
                 {locations.map(loc => (
                   <TouchableOpacity key={loc.id} onPress={() => handleSelect(loc.id)} style={{ paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.border, flexDirection: 'row', alignItems: 'center' }}>
                     {loc.id === currentLocationId ? (
@@ -123,3 +131,5 @@ export function LocationPicker() {
     </>
   );
 }
+
+
