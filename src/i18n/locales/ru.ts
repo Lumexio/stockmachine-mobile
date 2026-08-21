@@ -75,10 +75,15 @@ const ru: Translations = {
       "delete": "Ошибка при удалении записи",
       "network": "Ошибка сети. Пожалуйста, попробуйте снова.",
       "export": "Ошибка экспорта",
-      "noLocation": "Нет локации"
+      "noLocation": "Нет локации",
+      "permissionRequired": "Требуется разрешение",
+      "cameraPermission": "Для сканирования требуется разрешение на использование камеры."
     },
     "confirm": {
       "discard": "Отменить изменения?"
+    },
+    "info": {
+      "pointCamera": "Наведите камеру на штрихкод"
     }
   },
   "common": {
@@ -124,7 +129,8 @@ const ru: Translations = {
         "supplier_name": "Поставщик",
         "cost_price": "Себестоимость",
         "selling_price": "Цена продажи",
-        "min_stock": "Мин. запас"
+        "min_stock": "Мин. запас",
+        "barcode": "Штрихкод"
       }
     },
     "categories": {
@@ -200,7 +206,8 @@ const ru: Translations = {
         "supplier_name": "Поставщик",
         "cost_price": "Себестоимость",
         "selling_price": "Цена продажи",
-        "min_stock": "Мин. запас"
+        "min_stock": "Мин. запас",
+        "barcode": "Штрихкод"
       },
       "categories": {
         "name": "Название",
@@ -235,7 +242,8 @@ const ru: Translations = {
       "contact_name": "Enter contact name",
       "email": "Enter email",
       "phone": "Enter phone",
-      "address": "Enter address"
+      "address": "Enter address",
+      "barcode": "Отсканируйте или введите штрихкод"
     },
     "validation": {
       "required": "Это поле обязательно"

@@ -75,10 +75,15 @@ const ja: Translations = {
       "delete": "レコードの削除中にエラーが発生しました",
       "network": "ネットワークエラーが発生しました。再試行してください。",
       "export": "エクスポートエラー",
-      "noLocation": "場所がありません"
+      "noLocation": "場所がありません",
+      "permissionRequired": "許可が必要です",
+      "cameraPermission": "スキャンするにはカメラの許可が必要です。"
     },
     "confirm": {
       "discard": "変更を破棄しますか？"
+    },
+    "info": {
+      "pointCamera": "カメラをバーコードに向けてください"
     }
   },
   "common": {
@@ -124,7 +129,8 @@ const ja: Translations = {
         "supplier_name": "サプライヤー",
         "cost_price": "原価",
         "selling_price": "販売価格",
-        "min_stock": "最小在庫"
+        "min_stock": "最小在庫",
+        "barcode": "バーコード"
       }
     },
     "categories": {
@@ -200,7 +206,8 @@ const ja: Translations = {
         "supplier_name": "サプライヤー",
         "cost_price": "原価",
         "selling_price": "販売価格",
-        "min_stock": "最小在庫"
+        "min_stock": "最小在庫",
+        "barcode": "バーコード"
       },
       "categories": {
         "name": "名前",
@@ -235,7 +242,8 @@ const ja: Translations = {
       "contact_name": "Enter contact name",
       "email": "Enter email",
       "phone": "Enter phone",
-      "address": "Enter address"
+      "address": "Enter address",
+      "barcode": "バーコードをスキャンまたは入力"
     },
     "validation": {
       "required": "この項目は必須です"

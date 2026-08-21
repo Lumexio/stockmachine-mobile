@@ -73,7 +73,12 @@ const en = {
       "delete": "Error deleting record",
       "network": "Network error. Please try again.",
       "export": "Error exporting",
-      "noLocation": "No location"
+      "noLocation": "No location",
+      "permissionRequired": "Permission required",
+      "cameraPermission": "Camera permission is needed to scan barcodes."
+    },
+    "info": {
+      "pointCamera": "Point camera at barcode"
     },
     "confirm": {
       "discard": "Discard changes?"
@@ -114,6 +119,7 @@ const en = {
       "delete": "Delete Product",
       "columns": {
         "name": "Name",
+        "barcode": "Barcode",
         "category_name": "Category",
         "shelve_name": "Shelve",
         "rack_name": "Rack",
@@ -189,6 +195,7 @@ const en = {
     "label": {
       "products": {
         "name": "Name",
+        "barcode": "Barcode",
         "quantity": "Quantity",
         "description": "Description",
         "category_name": "Category",
@@ -223,6 +230,7 @@ const en = {
     },
     "placeholders": {
       "name": "Enter name",
+      "barcode": "Scan or enter barcode",
       "description": "Enter description",
       "quantity": "Enter quantity",
       "category": "Select category",
@@ -297,9 +305,5 @@ const en = {
   }
 } as const;
 
-type DeepStringify<T> = {
-  [K in keyof T]: T[K] extends object ? DeepStringify<T[K]> : string;
-};
-
-export type Translations = DeepStringify<typeof en>;
+export type Translations = typeof en;
 export default en;

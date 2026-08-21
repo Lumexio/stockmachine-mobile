@@ -133,7 +133,10 @@ export function ProductFormScreen({ route, navigation }: Props) {
     if (!permission?.granted) {
       const { granted } = await requestPermission();
       if (!granted) {
-        Alert.alert('Permission required', 'Camera permission is needed to scan barcodes.');
+        Alert.alert(
+          t('messages.error.permissionRequired', 'Permission required'),
+          t('messages.error.cameraPermission', 'Camera permission is needed to scan barcodes.')
+        );
         return;
       }
     }
@@ -224,7 +227,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
 
         <View>
           <Text className="text-sm mb-1" style={{ color: colors.text }}>
-            Barcode
+            {t('forms.label.products.barcode', 'Barcode')}
           </Text>
           <View className="flex-row items-center" style={{ gap: 8 }}>
             <TextInput
@@ -233,7 +236,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
               placeholderTextColor={colors.textSecondary}
               value={barcode}
               onChangeText={setBarcode}
-              placeholder="Scan or enter barcode"
+              placeholder={getPlaceholder('forms.placeholders.barcode', 'Scan or enter barcode')}
               testID="barcode-input"
             />
             <TouchableOpacity 
@@ -466,6 +469,201 @@ export function ProductFormScreen({ route, navigation }: Props) {
             <View style={{ position: 'absolute', top: 50, right: 20, flexDirection: 'row', gap: 16 }}>
               <TouchableOpacity onPress={() => setTorchEnabled(!torchEnabled)} style={{ padding: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 24 }}>
                 <MaterialCommunityIcons name={torchEnabled ? 'flashlight-off' : 'flashlight'} size={24} color="#FFF" />
+            placeholder={getPlaceholder('forms.placeholders.quantity', t('forms.label.products.quantity'))}
+            testID="quantity-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            {t('forms.label.products.cost_price')}
+          </Text>
+          <TextInput
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={costPrice}
+            onChangeText={setCostPrice}
+            keyboardType="numeric"
+            placeholder={getPlaceholder('forms.placeholders.cost_price', '0.00')}
+            testID="cost-price-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            {t('forms.label.products.selling_price')}
+          </Text>
+          <TextInput
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={sellingPrice}
+            onChangeText={setSellingPrice}
+            keyboardType="numeric"
+            placeholder={getPlaceholder('forms.placeholders.selling_price', '0.00')}
+            testID="selling-price-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            {t('forms.label.products.min_stock', 'Min Stock')}
+          </Text>
+          <TextInput
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={minStock}
+            onChangeText={setMinStock}
+            keyboardType="numeric"
+            placeholder={getPlaceholder('forms.placeholders.min_stock', '10')}
+            testID="min-stock-input"
+          />
+        </View>
+
+        {categories.length > 0 && (
+          <View>
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
+              {t('forms.label.products.category_name')}
+            </Text>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={categoryId}
+                onValueChange={(itemValue) => setCategoryId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectCategory', 'Select Category')} value={undefined} />
+                {categories.map((c) => (
+                  <Picker.Item key={c.id} label={c.name} value={c.id} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        )}
+
+        {shelves.length > 0 && (
+          <View>
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
+              {t('forms.label.products.shelve_name')}
+            </Text>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={shelveId}
+                onValueChange={(itemValue) => setShelveId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectShelve', 'Select Shelve')} value={undefined} />
+                {shelves.map((s) => (
+                  <Picker.Item key={s.id} label={s.name} value={s.id} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        )}
+
+        {racks.length > 0 && (
+          <View>
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
+              {t('forms.label.products.rack_name')}
+            </Text>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={rackId}
+                onValueChange={(itemValue) => setRackId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectRack', 'Select Rack')} value={undefined} />
+                {racks.map((r) => (
+                  <Picker.Item key={r.id} label={r.name} value={r.id} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        )}
+
+        {suppliers.length > 0 && (
+          <View>
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
+              {t('forms.label.products.supplier_name', 'Supplier')}
+            </Text>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={supplierId}
+                onValueChange={(itemValue) => setSupplierId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectSupplier', 'Select Supplier')} value={undefined} />
+                {suppliers.map((sup) => (
+                  <Picker.Item key={sup.id} label={sup.name} value={sup.id} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        )}
+
+        {statuses.length > 0 && (
+          <View>
+            <Text className="text-sm mb-2" style={{ color: colors.text }}>
+              {t('forms.label.products.status')}
+            </Text>
+            <View className="border rounded-full overflow-hidden" style={{ borderColor: colors.border, backgroundColor: colors.surface }}>
+              <Picker
+                selectedValue={statusId}
+                onValueChange={(itemValue) => setStatusId(itemValue)}
+                style={{ color: colors.text }}
+                dropdownIconColor={colors.text}
+              >
+                <Picker.Item label={t('forms.placeholders.selectStatus', 'Select Status')} value={undefined} />
+                {statuses.map((st) => (
+                  <Picker.Item key={st.id} label={st.name} value={st.id} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        )}
+
+        <TouchableOpacity
+          onPress={handleSave}
+          disabled={saving}
+          className="bg-red-600 rounded-3xl py-4 items-center mt-2"
+          testID="save-button"
+        >
+          {saving ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text className="text-white font-semibold text-base">
+              {t('actions.save')}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </View>
+      </ScrollView>
+
+      {!!formError && (
+        <View style={{ position: 'absolute', bottom: 20, left: 16, right: 16, backgroundColor: '#333333', padding: 16, borderRadius: 8, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84, elevation: 5 }}>
+          <Text style={{ color: 'white', flex: 1, marginRight: 8 }}>{formError}</Text>
+          <TouchableOpacity onPress={() => setFormError('')}>
+            <Text style={{ color: '#fff', fontWeight: 'bold' }}>✕</Text>
+          </TouchableOpacity>
+        </View>
+        )}
+
+        <Modal visible={showScanner} animationType="slide" onRequestClose={() => setShowScanner(false)}>
+          <View style={{ flex: 1, backgroundColor: 'black' }}>
+            <CameraView 
+              style={{ flex: 1 }} 
+              facing="back"
+              enableTorch={torchEnabled}
+              onBarcodeScanned={handleBarCodeScanned}
+            />
+            <View style={{ position: 'absolute', top: 50, right: 20, flexDirection: 'row', gap: 16 }}>
+              <TouchableOpacity onPress={() => setTorchEnabled(!torchEnabled)} style={{ padding: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 24 }}>
+                <MaterialCommunityIcons name={torchEnabled ? 'flashlight-off' : 'flashlight'} size={24} color="#FFF" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setShowScanner(false)} style={{ padding: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 24 }}>
                 <MaterialCommunityIcons name="close" size={24} color="#FFF" />
@@ -473,7 +671,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
             </View>
             <View style={{ position: 'absolute', bottom: 50, width: '100%', alignItems: 'center' }}>
               <Text style={{ color: 'white', backgroundColor: 'rgba(0,0,0,0.5)', padding: 12, borderRadius: 8 }}>
-                Point camera at barcode
+                {t('messages.info.pointCamera', 'Point camera at barcode')}
               </Text>
             </View>
           </View>

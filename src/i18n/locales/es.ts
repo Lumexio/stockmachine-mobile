@@ -75,10 +75,15 @@ const es: Translations = {
       "delete": "Error al eliminar el registro",
       "network": "Error de red. Por favor, inténtalo de nuevo.",
       "export": "Error al exportar",
-      "noLocation": "Sin ubicación"
+      "noLocation": "Sin ubicación",
+      "permissionRequired": "Permiso requerido",
+      "cameraPermission": "Se necesita permiso de la cámara para escanear."
     },
     "confirm": {
       "discard": "¿Descartar cambios?"
+    },
+    "info": {
+      "pointCamera": "Apunte la cámara al código"
     }
   },
   "common": {
@@ -124,7 +129,8 @@ const es: Translations = {
         "supplier_name": "Proveedor",
         "cost_price": "Precio Costo",
         "selling_price": "Precio Venta",
-        "min_stock": "Stock Min"
+        "min_stock": "Stock Min",
+        "barcode": "Código de Barras"
       }
     },
     "categories": {
@@ -200,7 +206,8 @@ const es: Translations = {
         "supplier_name": "Proveedor",
         "cost_price": "Precio Costo",
         "selling_price": "Precio Venta",
-        "min_stock": "Stock Min"
+        "min_stock": "Stock Min",
+        "barcode": "Código de Barras"
       },
       "categories": {
         "name": "Nombre",
@@ -235,7 +242,8 @@ const es: Translations = {
       "contact_name": "Enter contact name",
       "email": "Enter email",
       "phone": "Enter phone",
-      "address": "Enter address"
+      "address": "Enter address",
+      "barcode": "Escanear o ingresar código de barras"
     },
     "validation": {
       "required": "Este campo es obligatorio"
