@@ -36,6 +36,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
   const { selectedProduct, create, update, fetchById } = useProductsStore();
 
   const [name, setName] = useState('');
+  const [barcode, setBarcode] = useState('');
   const [description, setDescription] = useState('');
   const [quantity, setQuantity] = useState('0');
   const [costPrice, setCostPrice] = useState('0');
@@ -90,6 +91,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
   useEffect(() => {
     if (isEdit && selectedProduct) {
       setName(selectedProduct.name);
+      setBarcode(selectedProduct.barcode || '');
       setDescription(selectedProduct.description || '');
       setQuantity(selectedProduct.quantity.toString());
       setCostPrice(selectedProduct.cost_price?.toString() || '0');
@@ -130,6 +132,7 @@ export function ProductFormScreen({ route, navigation }: Props) {
     try {
       const dto = {
         name: name.trim(),
+        barcode: barcode.trim(),
         description: description.trim(),
         quantity: parseInt(quantity, 10) || 0,
         cost_price: parseFloat(costPrice) || 0,
@@ -193,6 +196,21 @@ export function ProductFormScreen({ route, navigation }: Props) {
             onChangeText={setName}
             placeholder={getPlaceholder('forms.placeholders.name', t('forms.label.products.name'))}
             testID="name-input"
+          />
+        </View>
+
+        <View>
+          <Text className="text-sm mb-1" style={{ color: colors.text }}>
+            Barcode
+          </Text>
+          <TextInput
+            className="border rounded-full px-4 py-3"
+            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+            placeholderTextColor={colors.textSecondary}
+            value={barcode}
+            onChangeText={setBarcode}
+            placeholder="Scan or enter barcode"
+            testID="barcode-input"
           />
         </View>
 
