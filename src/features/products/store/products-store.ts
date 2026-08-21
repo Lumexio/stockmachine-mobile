@@ -91,6 +91,19 @@ export const useProductsStore = create<ProductsState>()(
 
         set((s) => ({ products: [newProduct, ...s.products] }));
 
+        const ds = useDashboardStore.getState();
+        if (ds.summary) {
+          const qty = dto.quantity || 0;
+          const cost = dto.cost_price || 0;
+          const isLowStock = qty <= (dto.min_stock || 0) ? 1 : 0;
+          ds.updateOfflineSummary({
+            total_products: (ds.summary.total_products || 0) + 1,
+            total_stock: (ds.summary.total_stock || 0) + qty,
+            total_value: (ds.summary.total_value || 0) + (qty * cost),
+            low_stock_count: (ds.summary.low_stock_count || 0) + isLowStock
+          });
+        }
+
         await useSyncStore.getState().enqueueOperation({
           operation: 'create',
           endpoint: 'products',
@@ -132,10 +145,25 @@ export const useProductsStore = create<ProductsState>()(
       },
 
       remove: async (id) => {
+        const productToRemove = get().products.find(p => p.id === id);
+
         set((s) => ({
           products: s.products.filter((p) => p.id !== id),
           selectedProduct: s.selectedProduct?.id === id ? null : s.selectedProduct,
         }));
+
+        const ds = useDashboardStore.getState();
+        if (ds.summary && productToRemove) {
+          const qty = productToRemove.quantity || 0;
+          const cost = productToRemove.cost_price || 0;
+          const isLowStock = qty <= (productToRemove.min_stock || 0) ? 1 : 0;
+          ds.updateOfflineSummary({
+            total_products: Math.max(0, (ds.summary.total_products || 0) - 1),
+            total_stock: Math.max(0, (ds.summary.total_stock || 0) - qty),
+            total_value: Math.max(0, (ds.summary.total_value || 0) - (qty * cost)),
+            low_stock_count: Math.max(0, (ds.summary.low_stock_count || 0) - isLowStock)
+          });
+        }
 
         await useSyncStore.getState().enqueueOperation({
           operation: 'delete',

@@ -70,7 +70,10 @@ export function DashboardScreen() {
             label={t('dashboard.lowStock')}
             value={summary?.low_stock_count ?? 0}
             onPress={() => {
-              navigation.navigate(NAV_KEYS.PRODUCTS_STACK);
+              navigation.navigate(NAV_KEYS.PRODUCTS_STACK, {
+                screen: NAV_KEYS.PRODUCT_LIST,
+                params: { filter: 'low_stock' }
+              });
             }}
             accent={
               (summary?.low_stock_count ?? 0) > 0 ? '#FF5722' : Colors.primary
