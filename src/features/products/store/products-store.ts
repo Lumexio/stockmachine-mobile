@@ -9,6 +9,7 @@ import {
   getProductById,
 } from '../api/products-api';
 import { useSyncStore } from '../../../store/sync-store';
+import { useDashboardStore } from '../../dashboard/store/dashboard-store';
 
 interface ProductsState {
   products: Product[];
@@ -162,6 +163,16 @@ export const useProductsStore = create<ProductsState>()(
           return { products: updated, selectedProduct: selected };
         });
 
+        const ds = useDashboardStore.getState();
+        const dateStr = new Date().toISOString().split('T')[0];
+        ds.addOfflineMovement(dateStr, 'entry');
+        if (ds.summary) {
+          ds.updateOfflineSummary({
+            total_stock: (ds.summary.total_stock || 0) + dto.quantity,
+            movements_today: (ds.summary.movements_today || 0) + 1
+          });
+        }
+
         await useSyncStore.getState().enqueueOperation({
           operation: 'entry',
           endpoint: 'products',
@@ -187,6 +198,16 @@ export const useProductsStore = create<ProductsState>()(
             : s.selectedProduct;
           return { products: updated, selectedProduct: selected };
         });
+
+        const ds = useDashboardStore.getState();
+        const dateStr = new Date().toISOString().split('T')[0];
+        ds.addOfflineMovement(dateStr, 'withdrawal');
+        if (ds.summary) {
+          ds.updateOfflineSummary({
+            total_stock: Math.max(0, (ds.summary.total_stock || 0) - dto.quantity),
+            movements_today: (ds.summary.movements_today || 0) + 1
+          });
+        }
 
         await useSyncStore.getState().enqueueOperation({
           operation: 'withdrawal',

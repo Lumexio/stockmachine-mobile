@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   getDashboardSummary,
   getDashboardMovements,
@@ -7,6 +9,7 @@ import {
   MovementData,
   TopProduct,
 } from '../api/dashboard-api';
+import { useSyncStore } from '../../../store/sync-store';
 
 interface DashboardState {
   summary: DashboardSummary | null;
@@ -15,14 +18,38 @@ interface DashboardState {
   loading: boolean;
   error: string | null;
   fetchAll: () => Promise<void>;
+  updateOfflineSummary: (changes: Partial<DashboardSummary>) => void;
+  addOfflineMovement: (date: string, type: 'entry' | 'withdrawal') => void;
 }
 
-export const useDashboardStore = create<DashboardState>((set) => ({
-  summary: null,
-  movements: [],
-  topProducts: [],
-  loading: false,
-  error: null,
+export const useDashboardStore = create<DashboardState>()(
+  persist(
+    (set, get) => ({
+      summary: null,
+      movements: [],
+      topProducts: [],
+      loading: false,
+      error: null,
+
+      updateOfflineSummary: (changes) => {
+        set((s) => ({
+          summary: s.summary ? { ...s.summary, ...changes } : null,
+        }));
+      },
+
+      addOfflineMovement: (date, type) => {
+        set((s) => {
+          const movements = [...s.movements];
+          const today = movements.find(m => m.date === date);
+          if (today) {
+            if (type === 'entry') today.entries += 1;
+            if (type === 'withdrawal') today.withdrawals += 1;
+          } else {
+            movements.push({ date, entries: type === 'entry' ? 1 : 0, withdrawals: type === 'withdrawal' ? 1 : 0 });
+          }
+          return { movements };
+        });
+      },
 
   fetchAll: async () => {
     set({ loading: true, error: null });
@@ -39,4 +66,15 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       set({ loading: false });
     }
   },
-}));
+}),
+    {
+      name: 'sm_dashboard_store',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        summary: state.summary,
+        movements: state.movements,
+        topProducts: state.topProducts,
+      }),
+    }
+  )
+);
