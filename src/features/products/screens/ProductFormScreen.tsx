@@ -7,9 +7,12 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  Modal,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useTranslation } from 'react-i18next';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useThemeStore } from '@store/theme-store';
 import { Colors } from '@constants/theme';
@@ -49,6 +52,10 @@ export function ProductFormScreen({ route, navigation }: Props) {
   const [statusId, setStatusId] = useState<number | undefined>();
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+
+  const [showScanner, setShowScanner] = useState(false);
+  const [torchEnabled, setTorchEnabled] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
 
   const [categories, setCategories] = useState<SelectOption[]>([]);
   const [shelves, setShelves] = useState<SelectOption[]>([]);
@@ -121,6 +128,22 @@ export function ProductFormScreen({ route, navigation }: Props) {
     });
     return unsubscribe;
   }, [navigation, name, saving, t]);
+
+  const openScanner = async () => {
+    if (!permission?.granted) {
+      const { granted } = await requestPermission();
+      if (!granted) {
+        Alert.alert('Permission required', 'Camera permission is needed to scan barcodes.');
+        return;
+      }
+    }
+    setShowScanner(true);
+  };
+
+  const handleBarCodeScanned = ({ data }: { data: string }) => {
+    setBarcode(data);
+    setShowScanner(false);
+  };
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -203,15 +226,23 @@ export function ProductFormScreen({ route, navigation }: Props) {
           <Text className="text-sm mb-1" style={{ color: colors.text }}>
             Barcode
           </Text>
-          <TextInput
-            className="border rounded-full px-4 py-3"
-            style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
-            placeholderTextColor={colors.textSecondary}
-            value={barcode}
-            onChangeText={setBarcode}
-            placeholder="Scan or enter barcode"
-            testID="barcode-input"
-          />
+          <View className="flex-row items-center" style={{ gap: 8 }}>
+            <TextInput
+              className="border rounded-full px-4 py-3 flex-1"
+              style={{ backgroundColor: colors.surface, borderColor: colors.border, color: colors.text }}
+              placeholderTextColor={colors.textSecondary}
+              value={barcode}
+              onChangeText={setBarcode}
+              placeholder="Scan or enter barcode"
+              testID="barcode-input"
+            />
+            <TouchableOpacity 
+              onPress={openScanner}
+              className="p-3 rounded-full" 
+              style={{ backgroundColor: colors.primary }}>
+              <MaterialCommunityIcons name="barcode-scan" size={24} color="#FFF" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View>
@@ -422,7 +453,31 @@ export function ProductFormScreen({ route, navigation }: Props) {
             <Text style={{ color: '#fff', fontWeight: 'bold' }}>✕</Text>
           </TouchableOpacity>
         </View>
-      )}
+        )}
+
+        <Modal visible={showScanner} animationType="slide" onRequestClose={() => setShowScanner(false)}>
+          <View style={{ flex: 1, backgroundColor: 'black' }}>
+            <CameraView 
+              style={{ flex: 1 }} 
+              facing="back"
+              enableTorch={torchEnabled}
+              onBarcodeScanned={handleBarCodeScanned}
+            />
+            <View style={{ position: 'absolute', top: 50, right: 20, flexDirection: 'row', gap: 16 }}>
+              <TouchableOpacity onPress={() => setTorchEnabled(!torchEnabled)} style={{ padding: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 24 }}>
+                <MaterialCommunityIcons name={torchEnabled ? 'flashlight-off' : 'flashlight'} size={24} color="#FFF" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setShowScanner(false)} style={{ padding: 12, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: 24 }}>
+                <MaterialCommunityIcons name="close" size={24} color="#FFF" />
+              </TouchableOpacity>
+            </View>
+            <View style={{ position: 'absolute', bottom: 50, width: '100%', alignItems: 'center' }}>
+              <Text style={{ color: 'white', backgroundColor: 'rgba(0,0,0,0.5)', padding: 12, borderRadius: 8 }}>
+                Point camera at barcode
+              </Text>
+            </View>
+          </View>
+        </Modal>
     </View>
   );
 }
