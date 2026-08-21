@@ -33,7 +33,15 @@ export const useDashboardStore = create<DashboardState>()(
 
       updateOfflineSummary: (changes) => {
         set((s) => ({
-          summary: s.summary ? { ...s.summary, ...changes } : null,
+          summary: {
+            total_products: 0,
+            total_stock: 0,
+            total_value: 0,
+            low_stock_count: 0,
+            movements_today: 0,
+            ...(s.summary || {}),
+            ...changes,
+          },
         }));
       },
 

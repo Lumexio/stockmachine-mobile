@@ -92,17 +92,15 @@ export const useProductsStore = create<ProductsState>()(
         set((s) => ({ products: [newProduct, ...s.products] }));
 
         const ds = useDashboardStore.getState();
-        if (ds.summary) {
-          const qty = dto.quantity || 0;
-          const cost = dto.cost_price || 0;
-          const isLowStock = qty <= (dto.min_stock || 0) ? 1 : 0;
-          ds.updateOfflineSummary({
-            total_products: (ds.summary.total_products || 0) + 1,
-            total_stock: (ds.summary.total_stock || 0) + qty,
-            total_value: (ds.summary.total_value || 0) + (qty * cost),
-            low_stock_count: (ds.summary.low_stock_count || 0) + isLowStock
-          });
-        }
+        const qty = dto.quantity || 0;
+        const cost = dto.cost_price || 0;
+        const isLowStock = qty <= (dto.min_stock || 0) ? 1 : 0;
+        ds.updateOfflineSummary({
+          total_products: (ds.summary?.total_products || 0) + 1,
+          total_stock: (ds.summary?.total_stock || 0) + qty,
+          total_value: (ds.summary?.total_value || 0) + (qty * cost),
+          low_stock_count: (ds.summary?.low_stock_count || 0) + isLowStock
+        });
 
         await useSyncStore.getState().enqueueOperation({
           operation: 'create',
@@ -117,6 +115,8 @@ export const useProductsStore = create<ProductsState>()(
       },
 
       update: async (id, dto) => {
+        const oldItem = get().products.find(p => p.id === id);
+
         set((s) => {
           const updated = s.products.map((p) => {
             if (p.id === id) {
@@ -129,6 +129,25 @@ export const useProductsStore = create<ProductsState>()(
             : s.selectedProduct;
           return { products: updated, selectedProduct: selected };
         });
+
+        const ds = useDashboardStore.getState();
+        if (oldItem) {
+           const oldQty = oldItem.quantity || 0;
+           const newQty = dto.quantity ?? oldQty;
+           const oldCost = oldItem.cost_price || 0;
+           const newCost = dto.cost_price ?? oldCost;
+           const oldMin = oldItem.min_stock || 0;
+           const newMin = dto.min_stock ?? oldMin;
+           
+           const oldLow = oldQty <= oldMin ? 1 : 0;
+           const newLow = newQty <= newMin ? 1 : 0;
+           
+           ds.updateOfflineSummary({
+              total_stock: (ds.summary?.total_stock || 0) + (newQty - oldQty),
+              total_value: (ds.summary?.total_value || 0) + (newQty * newCost - oldQty * oldCost),
+              low_stock_count: (ds.summary?.low_stock_count || 0) + (newLow - oldLow),
+           });
+        }
 
         const currentItem = get().products.find((p) => p.id === id);
         if (currentItem) {

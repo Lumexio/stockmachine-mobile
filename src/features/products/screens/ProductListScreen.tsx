@@ -30,6 +30,12 @@ export function ProductListScreen({ navigation, route }: Props) {
 
   const filterMode = route.params?.filter;
 
+  useEffect(() => {
+    if (filterMode === 'low_stock') {
+      navigation.setOptions({ title: t('dashboard.lowStock', 'Low Stock') });
+    }
+  }, [navigation, filterMode, t]);
+
   const currentPlan = user?.organization?.plan_id || 'free';
   const itemsLimitReached = 
     (currentPlan === 'free' && products.length >= 50) ||
