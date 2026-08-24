@@ -75,10 +75,15 @@ const fr: Translations = {
       "delete": "Erreur lors de la suppression",
       "network": "Erreur réseau. Veuillez réessayer.",
       "export": "Erreur lors de l'exportation",
-      "noLocation": "Pas d'emplacement"
+      "noLocation": "Pas d'emplacement",
+      "permissionRequired": "Permission requise",
+      "cameraPermission": "La permission de la caméra est requise."
     },
     "confirm": {
       "discard": "Ignorer les modifications?"
+    },
+    "info": {
+      "pointCamera": "Pointez la caméra vers le code-barres"
     }
   },
   "common": {
@@ -124,7 +129,8 @@ const fr: Translations = {
         "supplier_name": "Fournisseur",
         "cost_price": "Prix de Revient",
         "selling_price": "Prix de Vente",
-        "min_stock": "Stock Min"
+        "min_stock": "Stock Min",
+        "barcode": "Code-barres"
       }
     },
     "categories": {
@@ -200,7 +206,8 @@ const fr: Translations = {
         "supplier_name": "Fournisseur",
         "cost_price": "Prix de Revient",
         "selling_price": "Prix de Vente",
-        "min_stock": "Stock Min"
+        "min_stock": "Stock Min",
+        "barcode": "Code-barres"
       },
       "categories": {
         "name": "Nom",
@@ -235,7 +242,8 @@ const fr: Translations = {
       "contact_name": "Enter contact name",
       "email": "Enter email",
       "phone": "Enter phone",
-      "address": "Enter address"
+      "address": "Enter address",
+      "barcode": "Scanner ou entrer le code-barres"
     },
     "validation": {
       "required": "Ce champ est obligatoire"

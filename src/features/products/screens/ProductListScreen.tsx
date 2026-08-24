@@ -20,13 +20,21 @@ type Props = NativeStackScreenProps<
   typeof NAV_KEYS.PRODUCT_LIST
 >;
 
-export function ProductListScreen({ navigation }: Props) {
+export function ProductListScreen({ navigation, route }: Props) {
   const { t } = useTranslation();
   const { colors } = useThemeStore();
   const { products, loading, fetchAll } = useProductsStore();
   const currentLocationId = useAuthStore(s => s.currentLocationId);
   const user = useAuthStore(s => s.user);
   const [search, setSearch] = useState('');
+
+  const filterMode = route.params?.filter;
+
+  useEffect(() => {
+    if (filterMode === 'low_stock') {
+      navigation.setOptions({ title: t('dashboard.lowStock', 'Low Stock') });
+    }
+  }, [navigation, filterMode, t]);
 
   const currentPlan = user?.organization?.plan_id || 'free';
   const itemsLimitReached = 
@@ -42,9 +50,13 @@ export function ProductListScreen({ navigation }: Props) {
     fetchAll();
   }, [fetchAll]);
 
-  const filtered = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = products.filter((p) => {
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
+    if (filterMode === 'low_stock') {
+      return matchSearch && (p.quantity || 0) <= (p.min_stock || 0);
+    }
+    return matchSearch;
+  });
 
   return (
     <View className="flex-1" style={{ backgroundColor: colors.background }}>
