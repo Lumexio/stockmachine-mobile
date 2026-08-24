@@ -296,7 +296,9 @@ const fr: Translations = {
     "online": "En ligne",
     "offline": "Hors ligne",
     "failed": "Échec sync"
-  }
+  },
+  "-": "TODO: -",
+  "react-native": "TODO: react-native"
 };
 
 export default fr;

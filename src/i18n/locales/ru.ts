@@ -296,7 +296,9 @@ const ru: Translations = {
     "online": "В сети",
     "offline": "Не в сети",
     "failed": "Ошибка синх"
-  }
+  },
+  "-": "TODO: -",
+  "react-native": "TODO: react-native"
 };
 
 export default ru;

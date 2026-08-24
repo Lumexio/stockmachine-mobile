@@ -294,12 +294,11 @@ const en = {
     "online": "Online",
     "offline": "Offline",
     "failed": "Sync Failed"
-  }
+  },
+  "-": "TODO: -",
+  "react-native": "TODO: react-native"
 } as const;
 
-type DeepStringify<T> = {
-  [K in keyof T]: T[K] extends object ? DeepStringify<T[K]> : string;
-};
-
+type DeepStringify<T> = { [K in keyof T]: T[K] extends object ? DeepStringify<T[K]> : string; };
 export type Translations = DeepStringify<typeof en>;
 export default en;

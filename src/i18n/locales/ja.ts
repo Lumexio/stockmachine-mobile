@@ -296,7 +296,9 @@ const ja: Translations = {
     "online": "オンライン",
     "offline": "オフライン",
     "failed": "同期失敗"
-  }
+  },
+  "-": "TODO: -",
+  "react-native": "TODO: react-native"
 };
 
 export default ja;
